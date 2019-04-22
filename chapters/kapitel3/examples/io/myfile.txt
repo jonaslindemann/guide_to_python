@@ -1,0 +1,2 @@
+Filens innehåll. Detta skrivs ut på samma rad.
+Denna text kommer på en ny rad
