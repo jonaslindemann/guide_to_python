@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="toolbar">
+    <file>images/icons8-edit-property-32.png</file>
+    <file>images/icons8-file-32.png</file>
+    <file>images/icons8-open-32.png</file>
+    <file>images/icons8-save-32.png</file>
+    <file>images/icons8-save-as-32.png</file>
+  </qresource>
+</RCC>
