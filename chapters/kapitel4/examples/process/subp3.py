@@ -7,7 +7,7 @@ Created on Tue Apr 17 23:41:59 2018
 
 import subprocess
 
-p = subprocess.Popen(['tracert', 'localhost'])
+p = subprocess.Popen(['ping', '-n', '1', 'localhost'])
 p.wait()
 
 if p.returncode == 0:
