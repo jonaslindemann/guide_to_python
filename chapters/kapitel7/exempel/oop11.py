@@ -122,13 +122,15 @@ class Line(Base):
         
     p0 = property(get_p0, set_p0)
     p1 = property(get_p1, set_p1)
+	
+if __name__ == "__main__":
     
-shapes = []
+	shapes = []
 
-shapes.append(Point(0.0, 1.0, "p0"))
-shapes.append(Circle(2.0, 1.0, 3.0, "c0"))
-shapes.append(Line("l0"))
+	shapes.append(Point(0.0, 1.0, "p0"))
+	shapes.append(Circle(2.0, 1.0, 3.0, "c0"))
+	shapes.append(Line("l0"))
 
-for shape in shapes:
-    print(shape.name)
+	for shape in shapes:
+		print(shape.name)
     
