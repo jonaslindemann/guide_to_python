@@ -185,13 +185,13 @@ class BeamModel(object):
 
         for el_displ, el_x, el_y, el_ep, el_eq in zip(ed, ex, ey, ep, eq):
             es = cfc.beam2s(el_x, el_y, el_ep, el_displ, el_eq)
-            self.NVM[i, :] = es[0][0]
+            self.NVM[i, :] = es[0][:]
             self.x[i] = el_x[0]
             i += 1
 
         # Sista positionen måste också tilldelas
 
-        self.NVM[i, :] = es[0][1]
+        self.NVM[i, :] = es[1][:]
         self.x[i] = el_x[1]
 
     def save_as_json(self, filename):
@@ -223,7 +223,7 @@ if __name__ == "__main__":
     beam = BeamModel()
     beam.lengths = [2.0, 2.0, 3.0]
     beam.segments = [100, 100, 100]
-    beam.supports = [Beam.FIXED_XY, Beam.FIXED_Y, Beam.FIXED_Y, Beam.FIXED_XYR]
+    beam.supports = [BeamModel.FIXED_XY, BeamModel.FIXED_Y, BeamModel.FIXED_Y, BeamModel.FIXED_XYR]
     beam.loads = [-1.0e3, -1.0e3, -1.0e3]
     beam.solve()
 

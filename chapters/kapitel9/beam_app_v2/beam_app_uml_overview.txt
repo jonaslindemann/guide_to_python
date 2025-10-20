@@ -1,0 +1,141 @@
+Beam Application - UML Class Diagram Overview
+=====================================================
+
+INHERITANCE HIERARCHY:
+┌─────────────┐
+│ QMainWindow │
+└─────────────┘
+       ▲
+       │ (inherits)
+┌─────────────┐
+│ BeamWindow  │ ◄─── Main Application Window
+└─────────────┘
+
+┌─────────────┐
+│   QWidget   │
+└─────────────┘
+       ▲
+       │ (inherits)
+    ┌──┴────────────────┐
+    │                   │
+┌─────────────┐  ┌─────────────────┐
+│ DrawWidget  │  │BeamResultsWindow│
+└─────────────┘  └─────────────────┘
+       ▲
+       │ (inherits)
+┌─────────────┐
+│ BeamWidget  │ ◄─── Visualization Component
+└─────────────┘
+
+COMPOSITION & AGGREGATION:
+BeamWindow
+├── BeamModel (composition - owns)
+├── BeamWidget (composition - owns)
+└── BeamResultsWindow (aggregation - uses)
+
+MAIN CLASSES OVERVIEW:
+======================
+
+┌─────────────────────────────────────────────────────────────┐
+│                        BeamWindow                           │
+│─────────────────────────────────────────────────────────────│
+│ - filename: str                                             │
+│ - current_segment: int                                      │
+│ - beam_model: BeamModel                                     │
+│ - beam_widget: BeamWidget                                   │
+│ - results_window: BeamResultsWindow                         │
+│─────────────────────────────────────────────────────────────│
+│ + setup_ui(): None                                          │
+│ + new_model(): None                                         │
+│ + update_controls(): None                                   │
+│ + on_save(), on_open(), on_new()                            │
+│ + on_add_beam(), on_remove_beam()                           │
+│ + on_results_view()                                         │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼ (uses)
+┌─────────────────────────────────────────────────────────────┐
+│                        BeamModel                            │
+│─────────────────────────────────────────────────────────────│
+│ + FIXED_Y, FIXED_XY, FIXED_XYR: int (constants)            │
+│ - lengths: list[float]                                      │
+│ - segments: list[int]                                       │
+│ - supports: list[int]                                       │
+│ - loads: list[float]                                        │
+│ - properties: list[list[float]]                             │
+│ - y_displ, x_displ, rot, NVM: ndarray                       │
+│─────────────────────────────────────────────────────────────│
+│ + solve(): None                                             │
+│ + add_segment(), remove_segment(): None                     │
+│ + save_as_json(), open_from_json()                          │
+│ + total_length(), max_load(), min_load(): float             │
+│ + max_abs_M(), max_abs_V(): float                           │
+└─────────────────────────────────────────────────────────────┘
+                              ▲
+                              │ (uses)
+┌─────────────────────────────────────────────────────────────┐
+│                       BeamWidget                            │
+│─────────────────────────────────────────────────────────────│
+│ - beam_model: BeamModel                                     │
+│ - rel_support_size, rel_margin: float                       │
+│ - __show_loads, __show_displacement: bool                   │
+│ - __show_moments, __show_section_force: bool                │
+│─────────────────────────────────────────────────────────────│
+│ + draw_beams(), draw_supports(): None                       │
+│ + draw_loads(), draw_moments(): None                        │
+│ + draw_displacement(), draw_section_force(): None           │
+│ + update_scale_factors(): None                              │
+│ + on_model_updated(): None                                  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼ (inherits from)
+┌─────────────────────────────────────────────────────────────┐
+│                       DrawWidget                            │
+│─────────────────────────────────────────────────────────────│
+│ - world_bounds: QRectF                                      │
+│ - stroke_pen: QPen                                          │
+│ - fill_brush: QBrush                                        │
+│ - transform: QTransform                                     │
+│─────────────────────────────────────────────────────────────│
+│ + draw_line(), draw_circle(), draw_rect(): None             │
+│ + draw_polygon(), draw_text(): None                         │
+│ + set_world_bounds(), set_stroke_color(): None              │
+│ + paintEvent(): None                                        │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                   BeamResultsWindow                         │
+│─────────────────────────────────────────────────────────────│
+│ - beam_model: BeamModel                                     │
+│─────────────────────────────────────────────────────────────│
+│ + update(): None                                            │
+│ + update_table(): None                                      │
+└─────────────────────────────────────────────────────────────┘
+
+UTILITY & TEST CLASSES:
+=======================
+
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│   BeamUtils     │  │ TestBeamModel   │  │ TestBeamWidget  │
+│─────────────────│  │─────────────────│  │─────────────────│
+│ + try_float()   │  │ + test_*()      │  │ + test_*()      │
+│ + resource_path │  │   methods       │  │   methods       │
+│ + close_console │  │                 │  │                 │
+│ + load_ui()     │  │                 │  │                 │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+
+KEY RELATIONSHIPS:
+==================
+• BeamWindow is the main controller (MVC pattern)
+• BeamModel contains business logic and data
+• BeamWidget handles visualization (inherits drawing from DrawWidget)
+• BeamResultsWindow shows tabular results
+• All classes use BeamUtils for utility functions
+• Test classes provide unit testing for core functionality
+
+DESIGN PATTERNS:
+================
+• MVC (Model-View-Controller): BeamModel (M), BeamWidget (V), BeamWindow (C)
+• Inheritance: Widget hierarchy with Qt base classes
+• Composition: BeamWindow owns BeamModel and BeamWidget
+• Observer: BeamWidget updates when BeamModel changes

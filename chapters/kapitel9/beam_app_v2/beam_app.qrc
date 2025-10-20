@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/toolbar">
+        <file>images/Available Updates.png</file>
+        <file>images/Add.png</file>
+        <file>images/Minus.png</file>
+        <file>images/Table.png</file>
+        <file>images/Add File.png</file>
+        <file>images/File.png</file>
+        <file>images/M.png</file>
+        <file>images/Open Document.png</file>
+        <file>images/Save.png</file>
+        <file>images/V.png</file>
+        <file>images/Y.png</file>
+        <file>images/Dimensions.png</file>
+    </qresource>
+</RCC>

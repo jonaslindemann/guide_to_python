@@ -1,0 +1,287 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+UML Class Diagram Generator for Beam Application
+
+Generates a PlantUML class diagram showing the structure and relationships
+of the beam analysis application.
+
+@author: Generated Analysis
+"""
+
+def generate_beam_app_uml():
+    """Generate PlantUML class diagram for the beam application"""
+    
+    uml_content = """
+@startuml BeamApplication_ClassDiagram
+
+!theme plain
+title Beam Application - Class Diagram
+
+' External Qt Classes (simplified)
+class QMainWindow {
+    +show()
+    +close()
+}
+
+class QWidget {
+    +update()
+    +paintEvent()
+}
+
+' Main Application Classes
+class BeamWindow {
+    -filename: str
+    -support_window: QWidget
+    -segments_window: QWidget  
+    -results_window: BeamResultsWindow
+    -current_segment: int
+    -beam_model: BeamModel
+    -beam_widget: BeamWidget
+    
+    +__init__()
+    +setup_ui(): None
+    +new_model(): None
+    +update_controls(): None
+    +update_combo(): None
+    +on_exit()
+    +on_new()
+    +on_open()
+    +on_save()
+    +on_save_as()
+    +on_results_view()
+    +on_add_beam()
+    +on_remove_beam()
+    +on_moment()
+    +on_section_force()
+    +on_displ()
+    +on_dimension()
+    +on_editing_finished()
+    +on_segment_combo()
+}
+
+class BeamModel {
+    +{static} FIXED_Y: int = 1
+    +{static} FIXED_XY: int = 2
+    +{static} FIXED_XYR: int = 3
+    +{static} DEFAULT_E: float
+    +{static} DEFAULT_A: float
+    +{static} DEFAULT_I: float
+    
+    -lengths: list[float]
+    -segments: list[int]
+    -supports: list[int]
+    -loads: list[float]
+    -properties: list[list[float]]
+    -n_dofs: int
+    -n_elements: int
+    -x: ndarray
+    -support_dofs: list
+    -y_displ: ndarray
+    -x_displ: ndarray
+    -rot: ndarray
+    -NVM: ndarray
+    
+    +__init__()
+    +new(): None
+    +add_segment(): None
+    +remove_segment(): None
+    +solve(): None
+    +save_as_json(filename: str): None
+    +open_from_json(filename: str): None
+    +total_length(): float
+    +max_load(): float
+    +min_load(): float
+    +max_abs_load(): float
+    +max_y_displ(): float
+    +min_y_displ(): float
+    +max_abs_y_displ(): float
+    +max_abs_M(): float
+    +max_abs_V(): float
+    -_default_properties(): list
+}
+
+class DrawWidget {
+    -world_bounds: QRectF
+    -__stroke_color: Qt.Color
+    -__fill_color: Qt.Color
+    -__stroke_width: float
+    -__text_color: Qt.Color
+    -stroke_pen: QPen
+    -fill_brush: QBrush
+    -font: QFont
+    -text_pen: QPen
+    -transform: QTransform
+    
+    +__init__()
+    +update(): None
+    +set_world_bounds(x: float, y: float, w: float, h: float): None
+    +set_stroke_color(color: Qt.Color): None
+    +set_fill_color(color: Qt.Color): None
+    +set_stroke_width(width: float): None
+    +set_text_color(color: Qt.Color): None
+    +draw_line(x1: float, y1: float, x2: float, y2: float): None
+    +draw_circle(x: float, y: float, r: float): None
+    +draw_rect(x: float, y: float, w: float, h: float): None
+    +draw_polygon(points: list): None
+    +draw_text(x: float, y: float, text: str): None
+    +on_draw(): None
+    +paintEvent(event: QPaintEvent): None
+    -__update_transform(): None
+    -__update_painter(): None
+}
+
+class BeamWidget {
+    -beam_model: BeamModel
+    -rel_support_size: float = 0.02
+    -rel_margin: float = 0.1
+    -rel_max_height: float = 0.1
+    -rel_dim_dist: float = 0.02
+    -__show_loads: bool = True
+    -__show_displacement: bool = True
+    -__show_moments: bool = True
+    -__show_section_force: bool = True
+    -__show_dimensions: bool = True
+    -max_abs_load: float
+    -y_max: float
+    -max_V: float
+    -max_M: float
+    
+    +__init__(beam_model: BeamModel)
+    +update_scale_factors(): None
+    +on_model_updated(): None
+    +draw_beams(): None
+    +draw_dimensions(): None
+    +draw_supports(): None
+    +draw_loads(): None
+    +draw_displacement(): None
+    +draw_moments(): None
+    +draw_section_force(): None
+    +on_draw(): None
+    +draw_support(x: float, y: float, roller: bool, fixed: bool): None
+    +draw_load(x: float, w: float, h: float): None
+    +total_length(): float
+    +rel_support_size(): float
+    +rel_support_size(size: float): None
+    +rel_margin(): float
+    +rel_margin(margin: float): None
+    +rel_max_height(): float
+    +rel_max_height(height: float): None
+}
+
+class BeamResultsWindow {
+    -beam_model: BeamModel
+    
+    +__init__(beam_model: BeamModel)
+    +update(): None
+    +update_table(): None
+}
+
+' Utility classes
+class BeamUtils {
+    +{static} try_float(text: str, default: float = 0.0): float
+    +{static} resource_path(relative_path: str): str
+    +{static} close_console(): None
+    +{static} load_ui(ui_file: str, widget: QWidget): None
+}
+
+' Test classes
+class TestBeamModel {
+    +test_total_length(): None
+    +test_max_load(): None
+    +test_min_load(): None
+    +test_max_abs_load(): None
+    +test_max_y_displ(): None
+    +test_min_y_displ(): None
+    +test_max_abs_y_displ(): None
+    +test_max_abs_M(): None
+    +test_max_abs_V(): None
+    +test_save_as_json(): None
+    +test_open_from_json(): None
+}
+
+class TestDrawWidget {
+    +setUp(): None
+    +test_initial_properties(): None
+    +test_set_properties(): None
+    +test_transform_update(): None
+}
+
+class TestBeamWidget {
+    +setUp(): None
+    +test_widget_init(): None
+    +test_update_scale_factors(): None
+}
+
+' Relationships
+QMainWindow <|-- BeamWindow : inherits
+QWidget <|-- DrawWidget : inherits
+QWidget <|-- BeamResultsWindow : inherits
+DrawWidget <|-- BeamWidget : inherits
+
+BeamWindow *-- BeamModel : composition
+BeamWindow *-- BeamWidget : composition
+BeamWindow o-- BeamResultsWindow : aggregation
+
+BeamWidget --> BeamModel : uses
+BeamResultsWindow --> BeamModel : uses
+
+BeamWindow ..> BeamUtils : uses
+BeamResultsWindow ..> BeamUtils : uses
+
+TestBeamModel ..> BeamModel : tests
+TestDrawWidget ..> DrawWidget : tests
+TestBeamWidget ..> BeamWidget : tests
+
+note right of BeamModel
+    Core business logic class that handles:
+    - Beam segments with properties
+    - Support conditions (FIXED_Y, FIXED_XY, FIXED_XYR)
+    - Load calculations
+    - Finite element analysis using Calfem
+    - Results storage (displacements, moments, forces)
+end note
+
+note right of BeamWidget
+    Visualization component that:
+    - Inherits drawing capabilities from DrawWidget
+    - Renders beam geometry, supports, loads
+    - Displays analysis results (moments, forces, displacements)
+    - Handles coordinate transformations and scaling
+end note
+
+note right of BeamWindow
+    Main application window that:
+    - Manages the user interface
+    - Coordinates between model and view
+    - Handles file operations (save/load)
+    - Manages application state
+end note
+
+@enduml
+"""
+    
+    return uml_content.strip()
+
+def save_uml_diagram():
+    """Save the UML diagram to a file"""
+    uml_content = generate_beam_app_uml()
+    
+    # Save as PlantUML file
+    with open("beam_app_class_diagram.puml", "w", encoding="utf-8") as f:
+        f.write(uml_content)
+    
+    print("UML class diagram saved as 'beam_app_class_diagram.puml'")
+    print("\nTo generate the diagram image:")
+    print("1. Install PlantUML: https://plantuml.com/")
+    print("2. Run: java -jar plantuml.jar beam_app_class_diagram.puml")
+    print("3. Or use online tool: http://www.plantuml.com/plantuml/")
+    
+    return uml_content
+
+if __name__ == "__main__":
+    print("Generating UML Class Diagram for Beam Application...")
+    uml_content = save_uml_diagram()
+    print("\nGenerated UML content:")
+    print("=" * 60)
+    print(uml_content)

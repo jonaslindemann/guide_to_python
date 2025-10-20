@@ -5,9 +5,9 @@ Modul för klassen BeamSegmentsWindow
 @author: Jonas Lindemann
 """
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QWidget
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from qtpy.QtWidgets import QMainWindow, QApplication, QFileDialog, QWidget
+from qtpy.QtCore import *
+from qtpy import uic
 
 class BeamSegmentsWindow(QWidget):
     """Dialogruta för att redigera segment egenskaper"""
