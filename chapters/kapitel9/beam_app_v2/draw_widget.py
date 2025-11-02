@@ -36,6 +36,7 @@ class DrawWidget(QWidget):
         """Uppdatera kontrollen"""
         self.__update_transform()
         self.__update_painter()
+        self.repaint()
 
     def __update_transform(self) -> None:
         """Uppdatera transformationsmatrisen mellan världs- och fönsterkoordinater"""

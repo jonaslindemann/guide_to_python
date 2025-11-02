@@ -12,16 +12,14 @@ import sys
 
 os.environ["QT_API"] = "pyside6"
 
-from qtpy.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox
-from qtpy import uic
-
-from beam_model import BeamModel
-from beam_results import BeamResultsWindow
-from beam_widget import BeamWidget
 from beam_utils import try_float, close_console
+from beam_widget import BeamWidget
+from beam_results import BeamResultsWindow
+from beam_model import BeamModel
+from qtpy import uic
+from qtpy.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox
+
 import beam_res
-
-
 
 class BeamWindow(QMainWindow):
     """Fönsterklass för balkprogrammet"""
@@ -32,17 +30,13 @@ class BeamWindow(QMainWindow):
         super().__init__()
 
         # Läs in gränssnitt från fil
-        self.setup_ui()
+        uic.loadUi("beam_app.ui", self)
 
         # Klassattribut
 
         self.filename = ""
-
-        self.support_window = None
-        self.segments_window = None
-        self.results_window = None
-
         self.current_segment = 0
+        self.results_window = None
 
         # Skapa och initiera balk modell
 
@@ -81,14 +75,17 @@ class BeamWindow(QMainWindow):
         # Koppla händelser till kontroller
 
         self.segment_combo.currentIndexChanged.connect(self.on_segment_combo)
-        self.segment_length_text.editingFinished.connect(self.on_editing_finished)
+        self.segment_length_text.editingFinished.connect(
+            self.on_editing_finished)
         self.calc_points_spin.valueChanged.connect(self.on_editing_finished)
-        self.segment_load_text.editingFinished.connect(self.on_editing_finished)
+        self.segment_load_text.editingFinished.connect(
+            self.on_editing_finished)
         self.e_text.editingFinished.connect(self.on_editing_finished)
         self.a_text.editingFinished.connect(self.on_editing_finished)
         self.i_text.editingFinished.connect(self.on_editing_finished)
 
-        self.segment_length_text.returnPressed.connect(self.on_editing_finished)
+        self.segment_length_text.returnPressed.connect(
+            self.on_editing_finished)
 
         self.left_support_xyr_option.clicked.connect(self.on_editing_finished)
         self.left_support_xy_option.clicked.connect(self.on_editing_finished)
@@ -97,12 +94,6 @@ class BeamWindow(QMainWindow):
         self.right_support_xyr_option.clicked.connect(self.on_editing_finished)
         self.right_support_xy_option.clicked.connect(self.on_editing_finished)
         self.right_support_y_option.clicked.connect(self.on_editing_finished)
-
-    def setup_ui(self) -> None:
-        """Läs in gränssnitt från fil"""
-
-        uic.loadUi("beam_app.ui", self)
-
 
     def new_model(self) -> None:
         """Skapa en ny modell"""
@@ -124,16 +115,14 @@ class BeamWindow(QMainWindow):
         self.segment_length_text.setText(
             str(self.beam_model.lengths[self.current_segment])
         )
-        self.calc_points_spin.setValue(self.beam_model.segments[self.current_segment])
-        self.segment_load_text.setText(str(self.beam_model.loads[self.current_segment]))
+        self.calc_points_spin.setValue(
+            self.beam_model.segments[self.current_segment])
+        self.segment_load_text.setText(
+            str(self.beam_model.loads[self.current_segment]))
 
-        E_str = f"{self.beam_model.properties[self.current_segment][0]:.4e}"
-        A_str = f"{self.beam_model.properties[self.current_segment][1]:.4e}"
-        I_str = f"{self.beam_model.properties[self.current_segment][2]:.4e}"
-
-        self.e_text.setText(E_str)
-        self.a_text.setText(A_str)
-        self.i_text.setText(I_str)
+        self.e_text.setText(f"{self.beam_model.properties[self.current_segment][0]:.4e}")
+        self.a_text.setText(f"{self.beam_model.properties[self.current_segment][1]:.4e}")
+        self.i_text.setText(f"{self.beam_model.properties[self.current_segment][2]:.4e}")
 
         if self.beam_model.supports[self.current_segment] == BeamModel.FIXED_XY:
             self.left_support_xy_option.setChecked(True)
@@ -153,11 +142,7 @@ class BeamWindow(QMainWindow):
         """Uppdatera listbox med balksegment"""
 
         self.segment_combo.clear()
-
-        for i, item in enumerate(self.beam_model.segments):
-            beam_descr = f"{i+1}: {self.beam_model.lengths[i]} m"
-            self.segment_combo.addItem(beam_descr)
-
+        self.update_combo_labels()
         self.segment_combo.setCurrentIndex(self.current_segment)
 
     def update_combo_labels(self) -> None:
@@ -167,60 +152,58 @@ class BeamWindow(QMainWindow):
             beam_descr = f"{i+1}: {self.beam_model.lengths[i]} m"
             self.segment_combo.setItemText(i, beam_descr)
 
-    def on_editing_finished(self, text: str ="") -> None:
+    def on_editing_finished(self, text: str = "") -> None:
         """Hantera ändringar i kontroller"""
 
-        if self.current_segment != -1:
+        if self.current_segment == -1:
+            return
 
-            l_str = self.segment_length_text.text()
-            q_str = self.segment_load_text.text()
-            E_str = self.e_text.text()
-            A_str = self.a_text.text()
-            I_str = self.i_text.text()
+        l = self.beam_model.lengths[self.current_segment]
+        q = self.beam_model.loads[self.current_segment]
+        E = self.beam_model.properties[self.current_segment][0]
+        A = self.beam_model.properties[self.current_segment][1]
+        I = self.beam_model.properties[self.current_segment][2]
 
-            l = self.beam_model.lengths[self.current_segment]
-            q = self.beam_model.loads[self.current_segment]
-            E = self.beam_model.properties[self.current_segment][0]
-            A = self.beam_model.properties[self.current_segment][1]
-            I = self.beam_model.properties[self.current_segment][2]
+        l = try_float(self.segment_length_text.text(), l)
+        q = try_float(self.segment_load_text.text(), q)
+        E = try_float(self.e_text.text(), E)
+        A = try_float(self.a_text.text(), A)
+        I = try_float(self.i_text.text(), I)
 
-            l = try_float(l_str, l)
-            q = try_float(q_str, q)
-            E = try_float(E_str, E)
-            A = try_float(A_str, A)
-            I = try_float(I_str, I)
+        self.beam_model.lengths[self.current_segment] = l
+        self.beam_model.loads[self.current_segment] = q
+        self.beam_model.properties[self.current_segment][0] = E
+        self.beam_model.properties[self.current_segment][1] = A
+        self.beam_model.properties[self.current_segment][2] = I
+        self.beam_model.segments[self.current_segment] = (
+            self.calc_points_spin.value()
+        )
 
-            self.beam_model.lengths[self.current_segment] = l
-            self.beam_model.loads[self.current_segment] = q
-            self.beam_model.properties[self.current_segment][0] = E
-            self.beam_model.properties[self.current_segment][1] = A
-            self.beam_model.properties[self.current_segment][2] = I
-            self.beam_model.segments[self.current_segment] = (
-                self.calc_points_spin.value()
-            )
+        if self.left_support_xy_option.isChecked():
+            self.beam_model.supports[self.current_segment] = BeamModel.FIXED_XY
+        elif self.left_support_y_option.isChecked():
+            self.beam_model.supports[self.current_segment] = BeamModel.FIXED_Y
+        elif self.left_support_xyr_option.isChecked():
+            self.beam_model.supports[self.current_segment] = BeamModel.FIXED_XYR
 
-            if self.left_support_xy_option.isChecked():
-                self.beam_model.supports[self.current_segment] = BeamModel.FIXED_XY
-            elif self.left_support_y_option.isChecked():
-                self.beam_model.supports[self.current_segment] = BeamModel.FIXED_Y
-            elif self.left_support_xyr_option.isChecked():
-                self.beam_model.supports[self.current_segment] = BeamModel.FIXED_XYR
+        if self.right_support_xy_option.isChecked():
+            self.beam_model.supports[self.current_segment +
+                                        1] = BeamModel.FIXED_XY
+        elif self.right_support_y_option.isChecked():
+            self.beam_model.supports[self.current_segment +
+                                        1] = BeamModel.FIXED_Y
+        elif self.right_support_xyr_option.isChecked():
+            self.beam_model.supports[self.current_segment +
+                                        1] = BeamModel.FIXED_XYR
 
-            if self.right_support_xy_option.isChecked():
-                self.beam_model.supports[self.current_segment + 1] = BeamModel.FIXED_XY
-            elif self.right_support_y_option.isChecked():
-                self.beam_model.supports[self.current_segment + 1] = BeamModel.FIXED_Y
-            elif self.right_support_xyr_option.isChecked():
-                self.beam_model.supports[self.current_segment + 1] = BeamModel.FIXED_XYR
+        self.beam_model.solve()
+        self.beam_widget.on_model_updated()
 
-            self.beam_model.solve()
-            self.beam_widget.on_model_updated()
+        self.update_controls()
+        self.update_combo_labels()
 
-            self.update_controls()
-            self.update_combo_labels()
-
-            if self.results_window is not None:
-                self.results_window.update()
+        if self.results_window is not None:
+            self.results_window.update()
 
     def on_segment_combo(self, idx: int) -> None:
         """Händelsemetod för att hantera val i listbox"""
@@ -240,7 +223,7 @@ class BeamWindow(QMainWindow):
 
     def on_open(self) -> None:
         """Händelsemetod för att öppna en modell"""
-        
+
         try:
             self.filename, _ = QFileDialog.getOpenFileName(
                 self, "Öppna modell", "", "Modell filer (*.json *.jpg *.bmp)"

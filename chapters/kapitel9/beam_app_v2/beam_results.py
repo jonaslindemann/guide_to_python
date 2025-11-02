@@ -35,11 +35,6 @@ class BeamResultsWindow(QWidget):
         self.update()
 
     def update(self):
-        """Uppdatera fönster"""
-
-        self.update_table()
-
-    def update_table(self):
         """Uppdatera tabell"""
 
         # Rensa tabell
