@@ -39,7 +39,7 @@ class BeamModel:
     def new(self) -> None:
         """Initiera balkmodell"""
 
-        self.def_props = (BeamModel.DEFAULT_E, BeamModel.DEFAULT_A, BeamModel.DEFAULT_I)
+        self.def_props = [BeamModel.DEFAULT_E, BeamModel.DEFAULT_A, BeamModel.DEFAULT_I]
 
         self.lengths = [2.0, 2.0, 3.0]
         self.segments = [100, 100, 100]

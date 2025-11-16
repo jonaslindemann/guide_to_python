@@ -32,6 +32,8 @@ class BeamWidget(DrawWidget):
         self.__show_section_force = True
         self.__show_dimensions = True
 
+        self.__dark_mode = False
+
         self.update_scale_factors()
 
     def update_scale_factors(self) -> None:
@@ -58,8 +60,13 @@ class BeamWidget(DrawWidget):
 
         # Draw beam
 
-        self.stroke_color = Qt.black
-        self.fill_color = Qt.white
+        if self.dark_mode:
+            self.stroke_color = QColor(200, 200, 200)
+            self.fill_color = QColor(50, 50, 50)
+        else:
+            self.stroke_color = Qt.black
+            self.fill_color = Qt.white
+
         self.stroke_width = 2.0
 
         for i, length in enumerate(self.beam_model.lengths):
@@ -73,10 +80,16 @@ class BeamWidget(DrawWidget):
     def draw_dimensions(self) -> None:
 
         # Draw dimensions
-        self.stroke_color = Qt.black
-        self.fill_color = Qt.black
+        if self.dark_mode:
+            self.stroke_color = Qt.white
+            self.fill_color = Qt.white
+            self.text_color = Qt.white
+        else:
+            self.stroke_color = Qt.black
+            self.fill_color = Qt.black
+            self.text_color = Qt.black
+
         self.stroke_width = 1.0
-        self.text_color = Qt.black
 
         y_start = -self.max_height - self.dim_dist
         y_end = -self.max_height * 2 - self.dim_dist
@@ -109,8 +122,14 @@ class BeamWidget(DrawWidget):
     def draw_supports(self) -> None:
 
         # Draw supports
-        self.stroke_color = Qt.black
-        self.fill_color = Qt.white
+
+        if self.dark_mode:
+            self.stroke_color = Qt.white
+            self.fill_color = Qt.white
+        else:
+            self.stroke_color = Qt.black
+            self.fill_color = Qt.white
+
         self.stroke_width = 2.0
 
         for i, support in enumerate(self.beam_model.supports):
@@ -125,11 +144,19 @@ class BeamWidget(DrawWidget):
                 self.draw_support(x, y, fixed=True)
 
     def draw_loads(self) -> None:
+
         # Draw loads
-        self.stroke_color = QColor(128, 50, 50)
-        self.fill_color = QColor(128, 50, 50, 64)
+
+        if self.dark_mode:
+            self.stroke_color = QColor(255, 100, 100)
+            self.fill_color = QColor(255, 100, 100, 128)
+            self.text_color = QColor(255, 100, 100)
+        else:
+            self.stroke_color = QColor(128, 50, 50)
+            self.fill_color = QColor(128, 50, 50, 64)
+            self.text_color = QColor(128, 50, 50)
+
         self.stroke_width = 2.0
-        self.text_color = QColor(128, 50, 50)
 
         for i, load in enumerate(self.beam_model.loads):
             x = sum(self.beam_model.lengths[:i])
@@ -165,8 +192,14 @@ class BeamWidget(DrawWidget):
     def draw_moments(self) :
 
         # Draw moments
-        self.stroke_color = QColor(50, 128, 50)
-        self.fill_color = QColor(50, 128, 50, 64)
+
+        if self.dark_mode:
+            self.stroke_color = QColor(50, 200, 50)
+            self.fill_color = QColor(50, 200, 50, 128)
+        else:
+            self.stroke_color = QColor(50, 128, 50)
+            self.fill_color = QColor(50, 128, 50, 64)
+
         self.stroke_width = 2.0
 
         for i in range(len(self.beam_model.x) - 1):
@@ -197,6 +230,13 @@ class BeamWidget(DrawWidget):
 
     def draw_support(self, x: float, y: float, roller: bool=False, fixed: bool=False) -> None:
         """Draw a support at position x, y with angle and radius"""
+
+        if self.dark_mode:
+            self.stroke_color = QColor(200, 200, 200)
+            self.fill_color = QColor(50, 50, 50)
+        else:
+            self.stroke_color = Qt.black
+            self.fill_color = Qt.white        
 
         if roller:
             self.circle(x, y - self.support_size * 0.5, self.support_size * 0.5)
@@ -252,9 +292,16 @@ class BeamWidget(DrawWidget):
             )
 
     def draw_displacement(self) -> None:
+
         # Draw displacements
-        self.stroke_color = QColor(128, 50, 50)
-        self.fill_color = QColor(128, 50, 50, 64)
+
+        if self.dark_mode:
+            self.stroke_color = QColor(255, 100, 100)
+            self.fill_color = QColor(255, 100, 100, 128)
+        else:
+            self.stroke_color = QColor(128, 50, 50)
+            self.fill_color = QColor(128, 50, 50, 64)
+
         self.stroke_width = 2.0
 
         for i in range(len(self.beam_model.x) - 1):
@@ -268,8 +315,14 @@ class BeamWidget(DrawWidget):
     def draw_moments(self) -> None:
 
         # Draw moments
-        self.stroke_color = QColor(50, 128, 50)
-        self.fill_color = QColor(50, 128, 50, 64)
+
+        if self.dark_mode:
+            self.stroke_color = QColor(50, 200, 50)
+            self.fill_color = QColor(50, 200, 50, 128)
+        else:
+            self.stroke_color = QColor(50, 128, 50)
+            self.fill_color = QColor(50, 128, 50, 64)
+
         self.stroke_width = 2.0
 
         points = (
@@ -289,8 +342,14 @@ class BeamWidget(DrawWidget):
     def draw_section_force(self) -> None:
 
         # Draw moments
-        self.stroke_color = QColor(50, 50, 128)
-        self.fill_color = QColor(50, 50, 128, 64)
+
+        if self.dark_mode:
+            self.stroke_color = QColor(50, 50, 200)
+            self.fill_color = QColor(50, 50, 200, 128)
+        else:
+            self.stroke_color = QColor(50, 50, 128)
+            self.fill_color = QColor(50, 50, 128, 64)
+
         self.stroke_width = 2.0
 
         points = (
@@ -391,4 +450,19 @@ class BeamWidget(DrawWidget):
     @show_dimensions.setter
     def show_dimensions(self, show):
         self.__show_dimensions = show
+        self.update()
+
+    @property
+    def dark_mode(self):
+        return self.__dark_mode
+    
+    @dark_mode.setter
+    def dark_mode(self, dark: bool):
+        self.__dark_mode = dark
+        if dark:
+            self.background_color = QColor(30, 30, 30)
+            self.text_color = Qt.white
+        else:
+            self.background_color = Qt.white
+            self.text_color = Qt.black
         self.update()

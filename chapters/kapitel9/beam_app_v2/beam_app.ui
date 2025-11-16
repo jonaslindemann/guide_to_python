@@ -23,15 +23,22 @@
         border: none;
         padding: 5px;
         background-color: transparent;
+        icon-size: 24px;
     }
     
     QToolButton:checked {
-        background-color:rgb(180, 180, 180);  /* Green when selected */
+        background-color: palette(highlight);
         border-radius: 3px;
     }
     
     QToolButton:hover {
-        background-color: #e0e0e0;
+        background-color: palette(midlight);
+        border-radius: 3px;
+    }
+    
+    QToolButton:pressed {
+        background-color: palette(mid);
+        border-radius: 3px;
     }</string>
   </property>
   <widget class="QWidget" name="main_widget">

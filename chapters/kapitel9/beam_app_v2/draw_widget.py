@@ -25,6 +25,7 @@ class DrawWidget(QWidget):
         self.__fill_color = Qt.white
         self.__stroke_width = 1.0
         self.__text_color = Qt.black
+        self.__background_color = Qt.white
         self.__painter = None
 
         self.stroke_pen = QPen(self.__stroke_color, self.__stroke_width)
@@ -89,7 +90,7 @@ class DrawWidget(QWidget):
 
         super().paintEvent(event)
         
-        self.painter.fillRect(0, 0, self.width(), self.height(), Qt.white)
+        self.painter.fillRect(0, 0, self.width(), self.height(), self.__background_color)
 
         # Delegera uppritning till underklassen
         self.on_draw()
@@ -289,3 +290,12 @@ class DrawWidget(QWidget):
     def text_color(self, color):
         self.__font_color = color
         self.text_pen.setColor(color)
+
+    @property
+    def background_color(self):
+        return self.__background_color
+    
+    @background_color.setter
+    def background_color(self, color):
+        self.__background_color = color
+        self.update()

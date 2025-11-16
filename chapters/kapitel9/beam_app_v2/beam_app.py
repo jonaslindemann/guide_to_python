@@ -18,6 +18,8 @@ from beam_results import BeamResultsWindow
 from beam_model import BeamModel
 from qtpy import uic
 from qtpy.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox
+from qtpy.QtGui import QPalette, QIcon, QPixmap, QPainter
+from qtpy.QtCore import Qt
 
 import beam_res
 
@@ -47,7 +49,7 @@ class BeamWindow(QMainWindow):
         self.beam_widget = BeamWidget(self.beam_model)
         self.main_layout.addWidget(self.beam_widget)
 
-        self.new_model()
+        self.new_model()        
 
         # Se till att check actions har rätt default värden
 
@@ -94,6 +96,54 @@ class BeamWindow(QMainWindow):
         self.right_support_xyr_option.clicked.connect(self.on_editing_finished)
         self.right_support_xy_option.clicked.connect(self.on_editing_finished)
         self.right_support_y_option.clicked.connect(self.on_editing_finished)
+
+        # Adjust icons for dark mode
+        self.adjust_icons_for_theme()
+
+    def adjust_icons_for_theme(self) -> None:
+        """Adjust toolbar icons to match the current theme (light/dark mode)"""
+        
+        # Check if we're in dark mode by looking at the window text color
+        palette = self.palette()
+        text_color = palette.color(QPalette.ColorRole.WindowText)
+        bg_color = palette.color(QPalette.ColorRole.Window)
+        
+        # Calculate luminance to determine if dark mode
+        # If background is darker than text, we're in dark mode
+        is_dark_mode = bg_color.lightness() < text_color.lightness()
+        
+        if is_dark_mode:
+            # Get all actions from toolbar and adjust their icons
+            for action in self.toolBar.actions():
+                if not action.isSeparator() and not action.icon().isNull():
+                    original_icon = action.icon()
+                    # Create a new icon with inverted colors for dark mode
+                    inverted_icon = self.create_inverted_icon(original_icon)
+                    action.setIcon(inverted_icon)
+
+        self.beam_widget.dark_mode = is_dark_mode
+    
+    def create_inverted_icon(self, icon: QIcon) -> QIcon:
+        """Create a white version of an icon for dark mode"""
+        
+        # Get the pixmap from the icon
+        pixmap = icon.pixmap(24, 24)  # Use toolbar icon size
+        
+        # Convert to image for pixel manipulation
+        image = pixmap.toImage()
+        
+        # Create a new pixmap with white color
+        colored_pixmap = QPixmap(pixmap.size())
+        colored_pixmap.fill(Qt.GlobalColor.transparent)
+        
+        # Use QPainter to colorize the icon to white
+        painter = QPainter(colored_pixmap)
+        painter.drawImage(0, 0, image)
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+        painter.fillRect(colored_pixmap.rect(), Qt.GlobalColor.white)
+        painter.end()
+        
+        return QIcon(colored_pixmap)
 
     def new_model(self) -> None:
         """Skapa en ny modell"""
@@ -142,22 +192,19 @@ class BeamWindow(QMainWindow):
         """Uppdatera listbox med balksegment"""
 
         self.segment_combo.clear()
-        self.update_combo_labels()
-        self.segment_combo.setCurrentIndex(self.current_segment)
-
-    def update_combo_labels(self) -> None:
-        """Uppdatera texter i listbox"""
 
         for i, item in enumerate(self.beam_model.segments):
             beam_descr = f"{i+1}: {self.beam_model.lengths[i]} m"
-            self.segment_combo.setItemText(i, beam_descr)
+            self.segment_combo.addItem(beam_descr)
+
+        self.segment_combo.setCurrentIndex(self.current_segment)
 
     def on_editing_finished(self, text: str = "") -> None:
         """Hantera ändringar i kontroller"""
 
         if self.current_segment == -1:
             return
-
+        
         l = self.beam_model.lengths[self.current_segment]
         q = self.beam_model.loads[self.current_segment]
         E = self.beam_model.properties[self.current_segment][0]
@@ -200,7 +247,7 @@ class BeamWindow(QMainWindow):
         self.beam_widget.on_model_updated()
 
         self.update_controls()
-        self.update_combo_labels()
+        self.update_combo()
 
         if self.results_window is not None:
             self.results_window.update()
@@ -331,6 +378,6 @@ if __name__ == "__main__":
     window = BeamWindow()
     window.show()
 
-    close_console()
+    # close_console()  # Commented out to see debug print statements
 
     sys.exit(application.exec_())
