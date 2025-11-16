@@ -97,46 +97,59 @@ class BeamWindow(QMainWindow):
         self.right_support_xy_option.clicked.connect(self.on_editing_finished)
         self.right_support_y_option.clicked.connect(self.on_editing_finished)
 
-        # Adjust icons for dark mode
+        # Justera ikoner för mörkt tema om nödvändigt
+
         self.adjust_icons_for_theme()
 
     def adjust_icons_for_theme(self) -> None:
         """Adjust toolbar icons to match the current theme (light/dark mode)"""
         
-        # Check if we're in dark mode by looking at the window text color
+        # Kontrollera om vi är i mörkt läge genom att titta på fönstrets textfärg
+
         palette = self.palette()
         text_color = palette.color(QPalette.ColorRole.WindowText)
         bg_color = palette.color(QPalette.ColorRole.Window)
+
+        # Beräkna ljusstyrka för att avgöra om mörkt läge.
+        # Om bakgrund är mörkare än text, är det mörkt läge.
         
-        # Calculate luminance to determine if dark mode
-        # If background is darker than text, we're in dark mode
         is_dark_mode = bg_color.lightness() < text_color.lightness()
         
         if is_dark_mode:
-            # Get all actions from toolbar and adjust their icons
+            
+            # Loppa över alla actions i verktygsfältet och justera deras ikoner
+
             for action in self.toolBar.actions():
                 if not action.isSeparator() and not action.icon().isNull():
                     original_icon = action.icon()
-                    # Create a new icon with inverted colors for dark mode
+                    
+                    # Skapa en ny ikon med inverterade färger för mörkt läge
+
                     inverted_icon = self.create_inverted_icon(original_icon)
                     action.setIcon(inverted_icon)
+
+        # Tala om för balk widgeten om vi skall använda mörkt läge.
 
         self.beam_widget.dark_mode = is_dark_mode
     
     def create_inverted_icon(self, icon: QIcon) -> QIcon:
-        """Create a white version of an icon for dark mode"""
+        """Skapa en vit version av en ikon för mörkt läge"""
         
-        # Get the pixmap from the icon
-        pixmap = icon.pixmap(24, 24)  # Use toolbar icon size
+        # Hämta pixmap från ikonen
+
+        pixmap = icon.pixmap(24, 24)  
         
-        # Convert to image for pixel manipulation
+        # Konvertera till bild för pixelmanipulation
+
         image = pixmap.toImage()
         
-        # Create a new pixmap with white color
+        # Skapa en ny pixmap för den färgade ikonen
+
         colored_pixmap = QPixmap(pixmap.size())
         colored_pixmap.fill(Qt.GlobalColor.transparent)
         
-        # Use QPainter to colorize the icon to white
+        # Använd QPainter för att färga ikonen vit
+        
         painter = QPainter(colored_pixmap)
         painter.drawImage(0, 0, image)
         painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
