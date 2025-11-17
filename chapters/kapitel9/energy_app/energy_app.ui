@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>main_window</class>
+ <widget class="QMainWindow" name="main_window">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>925</width>
+    <height>638</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Kontinuerlig balk</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">    QToolBar {
+        border: none;
+        spacing: 8px;
+    }
+    
+    QToolButton {
+        border: none;
+        padding: 5px;
+        background-color: transparent;
+        icon-size: 24px;
+    }
+    
+    QToolButton:checked {
+        background-color: palette(highlight);
+        border-radius: 3px;
+    }
+    
+    QToolButton:hover {
+        background-color: palette(midlight);
+        border-radius: 3px;
+    }
+    
+    QToolButton:pressed {
+        background-color: palette(mid);
+        border-radius: 3px;
+    }</string>
+  </property>
+  <widget class="QWidget" name="main_widget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>4</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>4</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
+      </property>
+      <widget class="QFrame" name="frame">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Shape::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Shadow::Raised</enum>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <layout class="QVBoxLayout" name="main_layout"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QFrame" name="frame_3">
+       <property name="maximumSize">
+        <size>
+         <width>280</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Shape::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Shadow::Raised</enum>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Vald balk</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="segment_combo">
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTabWidget" name="tabWidget">
+          <property name="tabPosition">
+           <enum>QTabWidget::TabPosition::North</enum>
+          </property>
+          <property name="tabShape">
+           <enum>QTabWidget::TabShape::Rounded</enum>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <property name="tabBarAutoHide">
+           <bool>false</bool>
+          </property>
+          <widget class="QWidget" name="geometry_tab">
+           <attribute name="title">
+            <string>Geometri</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Längd (m)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="segment_length_text"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>Punkter</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="calc_points_spin">
+                <property name="minimum">
+                 <number>4</number>
+                </property>
+                <property name="maximum">
+                 <number>300</number>
+                </property>
+                <property name="value">
+                 <number>300</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="support_tab">
+           <attribute name="title">
+            <string>Stöd</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_9">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QGroupBox" name="support_group">
+                <property name="title">
+                 <string>Vänster</string>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_7">
+                 <item>
+                  <widget class="QRadioButton" name="left_support_xyr_option">
+                   <property name="text">
+                    <string>XYR</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="left_support_xy_option">
+                   <property name="text">
+                    <string>XY</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="left_support_y_option">
+                   <property name="text">
+                    <string>Y</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="support_group_2">
+                <property name="title">
+                 <string>Höger</string>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_8">
+                 <item>
+                  <widget class="QRadioButton" name="right_support_xyr_option">
+                   <property name="text">
+                    <string>XYR</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="right_support_xy_option">
+                   <property name="text">
+                    <string>XY</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="right_support_y_option">
+                   <property name="text">
+                    <string>Y</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="load_tab">
+           <attribute name="title">
+            <string>Last</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>Utbredd last (N/m)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="segment_load_text"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="material_tab">
+           <attribute name="title">
+            <string>Material</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <item>
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Elasticitetsmodul (Pa)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="e_text"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>Tvärsnittsarea (m2)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="a_text"/>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Tröghetsmoment (m3)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="i_text"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menu_bar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>925</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="file_menu">
+    <property name="title">
+     <string>Arkiv</string>
+    </property>
+    <addaction name="new_action"/>
+    <addaction name="separator"/>
+    <addaction name="open_action"/>
+    <addaction name="save_action"/>
+    <addaction name="save_as_action"/>
+    <addaction name="separator"/>
+    <addaction name="exit_action"/>
+   </widget>
+   <widget class="QMenu" name="menuResultat">
+    <property name="title">
+     <string>Resultat</string>
+    </property>
+    <addaction name="moment_action"/>
+    <addaction name="section_force_action"/>
+    <addaction name="displ_action"/>
+    <addaction name="results_view_action"/>
+   </widget>
+   <widget class="QMenu" name="menuRedigera">
+    <property name="title">
+     <string>Redigera</string>
+    </property>
+    <addaction name="add_beam_action"/>
+    <addaction name="remove_beam_action"/>
+    <addaction name="update_action"/>
+   </widget>
+   <addaction name="file_menu"/>
+   <addaction name="menuRedigera"/>
+   <addaction name="menuResultat"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QToolbar { border: none; }</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>24</width>
+     <height>24</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="new_action"/>
+   <addaction name="open_action"/>
+   <addaction name="save_action"/>
+   <addaction name="separator"/>
+   <addaction name="add_beam_action"/>
+   <addaction name="remove_beam_action"/>
+   <addaction name="update_action"/>
+   <addaction name="separator"/>
+   <addaction name="moment_action"/>
+   <addaction name="section_force_action"/>
+   <addaction name="displ_action"/>
+   <addaction name="dimension_action"/>
+   <addaction name="results_view_action"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="open_action">
+   <property name="icon">
+    <iconset resource="energy_app.qrc">
+     <normaloff>:/toolbar/images/Open Document.png</normaloff>
+     <normalon>:/toolbar/images/icons8-open-32.png</normalon>:/toolbar/images/Open Document.png</iconset>
+   </property>
+   <property name="text">
+    <string>Öppna</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="save_action">
+   <property name="icon">
+    <iconset resource="energy_app.qrc">
+     <normaloff>:/toolbar/images/Save.png</normaloff>
+     <normalon>:/toolbar/images/icons8-save-32.png</normalon>:/toolbar/images/Save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Spara</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="save_as_action">
+   <property name="icon">
+    <iconset>
+     <normalon>:/toolbar/images/icons8-save-as-32.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Spara som...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="exit_action">
+   <property name="text">
+    <string>Avsluta</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="new_action">
+   <property name="icon">
+    <iconset resource="energy_app.qrc">
+     <normaloff>:/toolbar/images/Add File.png</normaloff>
+     <normalon>:/toolbar/images/icons8-file-32.png</normalon>:/toolbar/images/Add File.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ny modell</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="segments_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normalon>:/toolbar/images/icons8-edit-property-32.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Balkar...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="bc_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normalon>:/toolbar/images/icons8-edit-property-32.png</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Stöd...</string>
+   </property>
+  </action>
+  <action name="results_view_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="energy_app.qrc">
+     <normaloff>:/toolbar/images/Table.png</normaloff>:/toolbar/images/Table.png</iconset>
+   </property>
+   <property name="text">
+    <string>Tabell...</string>
+   </property>
+  </action>
+  <action name="add_beam_action">
+   <property name="icon">
+    <iconset resource="energy_app.qrc">
+     <normaloff>:/toolbar/images/Add.png</normaloff>:/toolbar/images/Add.png</iconset>
+   </property>
+   <property name="text">
+    <string>Lägg till</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="remove_beam_action">
+   <property name="icon">
+    <iconset resource="energy_app.qrc">
+     <normaloff>:/toolbar/images/Minus.png</normaloff>:/toolbar/images/Minus.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ta bort</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="moment_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="energy_app.qrc">
+     <normaloff>:/toolbar/images/M.png</normaloff>:/toolbar/images/M.png</iconset>
+   </property>
+   <property name="text">
+    <string>Moment</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="section_force_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="energy_app.qrc">
+     <normaloff>:/toolbar/images/V.png</normaloff>:/toolbar/images/V.png</iconset>
+   </property>
+   <property name="text">
+    <string>Tvärkraft</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="displ_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="energy_app.qrc">
+     <normaloff>:/toolbar/images/Y.png</normaloff>:/toolbar/images/Y.png</iconset>
+   </property>
+   <property name="text">
+    <string>Nedböjning</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="update_action">
+   <property name="icon">
+    <iconset resource="energy_app.qrc">
+     <normaloff>:/toolbar/images/Available Updates.png</normaloff>:/toolbar/images/Available Updates.png</iconset>
+   </property>
+   <property name="text">
+    <string>Uppdatera</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="dimension_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="energy_app.qrc">
+     <normaloff>:/toolbar/images/Dimensions.png</normaloff>:/toolbar/images/Dimensions.png</iconset>
+   </property>
+   <property name="text">
+    <string>Mått</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="energy_app.qrc"/>
+ </resources>
+ <connections/>
+</ui>

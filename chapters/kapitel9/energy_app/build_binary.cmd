@@ -1,0 +1,2 @@
+rem pyinstaller --onefile --add-data "beam_app.ui;." --add-data "beam_results.ui;." beam_app.py
+pyinstaller --noconfirm --hidden-import win32gui --hidden-import win32con --add-data  "beam_app.ui;." --add-data "beam_results.ui;." beam_app.py
