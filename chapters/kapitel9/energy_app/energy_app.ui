@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Kontinuerlig balk</string>
+   <string>1D Värmeflödesanalys</string>
   </property>
   <property name="styleSheet">
    <string notr="true">    QToolBar {
@@ -95,281 +95,207 @@
        <property name="frameShadow">
         <enum>QFrame::Shadow::Raised</enum>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <property name="leftMargin">
-           <number>4</number>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Randvillkor</string>
           </property>
-          <item>
-           <widget class="QLabel" name="label">
-            <property name="font">
-             <font>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Vald balk</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="segment_combo">
-            <property name="font">
-             <font>
-              <bold>true</bold>
-             </font>
-            </property>
-           </widget>
-          </item>
-         </layout>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_8">
+               <property name="text">
+                <string>h vänster (W/m²K)</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="h_left_text">
+               <property name="maximumSize">
+                <size>
+                 <width>64</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_9">
+               <property name="text">
+                <string>Temperatur vänster sida (°C)</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="T_left_text">
+               <property name="maximumSize">
+                <size>
+                 <width>64</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_10">
+               <property name="text">
+                <string>h höger (W/m²K)</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="h_right_text">
+               <property name="maximumSize">
+                <size>
+                 <width>64</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_11">
+               <property name="text">
+                <string>Temperatur höger sida (°C)</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="T_right_text">
+               <property name="maximumSize">
+                <size>
+                 <width>64</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
         </item>
         <item>
-         <widget class="QTabWidget" name="tabWidget">
-          <property name="tabPosition">
-           <enum>QTabWidget::TabPosition::North</enum>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string>Lageregenskaper</string>
           </property>
-          <property name="tabShape">
-           <enum>QTabWidget::TabShape::Rounded</enum>
-          </property>
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <property name="tabBarAutoHide">
-           <bool>false</bool>
-          </property>
-          <widget class="QWidget" name="geometry_tab">
-           <attribute name="title">
-            <string>Geometri</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <item>
-             <layout class="QGridLayout" name="gridLayout">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Längd (m)</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="segment_length_text"/>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>Punkter</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QSpinBox" name="calc_points_spin">
-                <property name="minimum">
-                 <number>4</number>
-                </property>
-                <property name="maximum">
-                 <number>300</number>
-                </property>
-                <property name="value">
-                 <number>300</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <spacer name="verticalSpacer">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="support_tab">
-           <attribute name="title">
-            <string>Stöd</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_9">
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <widget class="QGroupBox" name="support_group">
-                <property name="title">
-                 <string>Vänster</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_7">
-                 <item>
-                  <widget class="QRadioButton" name="left_support_xyr_option">
-                   <property name="text">
-                    <string>XYR</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QRadioButton" name="left_support_xy_option">
-                   <property name="text">
-                    <string>XY</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QRadioButton" name="left_support_y_option">
-                   <property name="text">
-                    <string>Y</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="support_group_2">
-                <property name="title">
-                 <string>Höger</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_8">
-                 <item>
-                  <widget class="QRadioButton" name="right_support_xyr_option">
-                   <property name="text">
-                    <string>XYR</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QRadioButton" name="right_support_xy_option">
-                   <property name="text">
-                    <string>XY</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QRadioButton" name="right_support_y_option">
-                   <property name="text">
-                    <string>Y</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="load_tab">
-           <attribute name="title">
-            <string>Last</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_5">
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
-               <widget class="QLabel" name="label_4">
-                <property name="text">
-                 <string>Utbredd last (N/m)</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="segment_load_text"/>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="material_tab">
-           <attribute name="title">
-            <string>Material</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_6">
-            <item>
-             <layout class="QGridLayout" name="gridLayout_2">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_5">
-                <property name="text">
-                 <string>Elasticitetsmodul (Pa)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="e_text"/>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_6">
-                <property name="text">
-                 <string>Tvärsnittsarea (m2)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="a_text"/>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_7">
-                <property name="text">
-                 <string>Tröghetsmoment (m3)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QLineEdit" name="i_text"/>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <property name="leftMargin">
+              <number>4</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Valt lager</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="layer_combo">
+               <property name="maximumSize">
+                <size>
+                 <width>64</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QGridLayout" name="gridLayout">
+             <item row="2" column="1">
+              <widget class="QSpinBox" name="calc_points_spin">
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="value">
+                <number>10</number>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string>Värmeledningsförmåga (W/mK)</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="conductivity_text"/>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Element</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>Tjocklek (m)</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="thickness_text"/>
+             </item>
+             <item row="3" column="0">
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -384,7 +310,7 @@
      <x>0</x>
      <y>0</y>
      <width>925</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="file_menu">
@@ -403,17 +329,16 @@
     <property name="title">
      <string>Resultat</string>
     </property>
-    <addaction name="moment_action"/>
-    <addaction name="section_force_action"/>
-    <addaction name="displ_action"/>
+    <addaction name="temperature_action"/>
+    <addaction name="heat_flux_action"/>
     <addaction name="results_view_action"/>
    </widget>
    <widget class="QMenu" name="menuRedigera">
     <property name="title">
      <string>Redigera</string>
     </property>
-    <addaction name="add_beam_action"/>
-    <addaction name="remove_beam_action"/>
+    <addaction name="add_layer_action"/>
+    <addaction name="remove_layer_action"/>
     <addaction name="update_action"/>
    </widget>
    <addaction name="file_menu"/>
@@ -446,13 +371,12 @@
    <addaction name="open_action"/>
    <addaction name="save_action"/>
    <addaction name="separator"/>
-   <addaction name="add_beam_action"/>
-   <addaction name="remove_beam_action"/>
+   <addaction name="add_layer_action"/>
+   <addaction name="remove_layer_action"/>
    <addaction name="update_action"/>
    <addaction name="separator"/>
-   <addaction name="moment_action"/>
-   <addaction name="section_force_action"/>
-   <addaction name="displ_action"/>
+   <addaction name="temperature_action"/>
+   <addaction name="heat_flux_action"/>
    <addaction name="dimension_action"/>
    <addaction name="results_view_action"/>
   </widget>
@@ -558,13 +482,13 @@
     <string>Tabell...</string>
    </property>
   </action>
-  <action name="add_beam_action">
+  <action name="add_layer_action">
    <property name="icon">
     <iconset resource="energy_app.qrc">
      <normaloff>:/toolbar/images/Add.png</normaloff>:/toolbar/images/Add.png</iconset>
    </property>
    <property name="text">
-    <string>Lägg till</string>
+    <string>Lägg till lager</string>
    </property>
    <property name="shortcut">
     <string>Ctrl++</string>
@@ -573,13 +497,13 @@
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
-  <action name="remove_beam_action">
+  <action name="remove_layer_action">
    <property name="icon">
     <iconset resource="energy_app.qrc">
      <normaloff>:/toolbar/images/Minus.png</normaloff>:/toolbar/images/Minus.png</iconset>
    </property>
    <property name="text">
-    <string>Ta bort</string>
+    <string>Ta bort lager</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
@@ -588,7 +512,7 @@
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
-  <action name="moment_action">
+  <action name="temperature_action">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -597,13 +521,13 @@
      <normaloff>:/toolbar/images/M.png</normaloff>:/toolbar/images/M.png</iconset>
    </property>
    <property name="text">
-    <string>Moment</string>
+    <string>Temperatur</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
-  <action name="section_force_action">
+  <action name="heat_flux_action">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -612,22 +536,7 @@
      <normaloff>:/toolbar/images/V.png</normaloff>:/toolbar/images/V.png</iconset>
    </property>
    <property name="text">
-    <string>Tvärkraft</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::MenuRole::NoRole</enum>
-   </property>
-  </action>
-  <action name="displ_action">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="energy_app.qrc">
-     <normaloff>:/toolbar/images/Y.png</normaloff>:/toolbar/images/Y.png</iconset>
-   </property>
-   <property name="text">
-    <string>Nedböjning</string>
+    <string>Värmeflöde</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

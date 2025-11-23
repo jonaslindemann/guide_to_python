@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Huvudmodul för balkprogrammet
+Huvudmodul för energiprogrammet
 
-Innehåller huvudklassen BeamWindow som är huvudfönstret för programmet samt programmets huvudloop.
+Innehåller huvudklassen EnergyWindow som är huvudfönstret för programmet samt programmets huvudloop.
 
 @author: Jonas Lindemann
 """
@@ -12,51 +12,50 @@ import sys
 
 os.environ["QT_API"] = "pyside6"
 
-from beam_utils import try_float, close_console
-from beam_widget import BeamWidget
-from beam_results import BeamResultsWindow
-from beam_model import BeamModel
+from energy_utils import try_float, close_console
+from energy_widget import EnergyWidget
+from energy_results import EnergyResultsWindow
+from energy_model import HeatFlow1DModel, MaterialLayer
 
 from qtpy import uic
 from qtpy.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox
 from qtpy.QtGui import QPalette, QIcon, QPixmap, QPainter
 from qtpy.QtCore import Qt
 
-import beam_res
+import energy_res
 
-class BeamWindow(QMainWindow):
-    """Fönsterklass för balkprogrammet"""
+class EnergyWindow(QMainWindow):
+    """Fönsterklass för energiprogrammet"""
 
     def __init__(self):
-        """BeamWindow konstruktor"""
+        """EnergyWindow konstruktor"""
 
         super().__init__()
 
         # Läs in gränssnitt från fil
-        uic.loadUi("beam_app.ui", self)
+        uic.loadUi("energy_app.ui", self)
 
         # Klassattribut
 
         self.filename = ""
-        self.current_segment = 0
+        self.current_layer = 0
         self.results_window = None
 
-        # Skapa och initiera balk modell
+        # Skapa och initiera värmeflödesmodell
 
-        self.beam_model = BeamModel()
+        self.heat_model = HeatFlow1DModel()
 
-        # Skapa en widget för att rita balken
+        # Skapa en widget för att rita modellen
 
-        self.beam_widget = BeamWidget(self.beam_model)
-        self.main_layout.addWidget(self.beam_widget)
+        self.energy_widget = EnergyWidget(self.heat_model)
+        self.main_layout.addWidget(self.energy_widget)
 
         self.new_model()        
 
         # Se till att check actions har rätt default värden
 
-        self.moment_action.setChecked(True)
-        self.section_force_action.setChecked(True)
-        self.displ_action.setChecked(True)
+        self.temperature_action.setChecked(True)
+        self.heat_flux_action.setChecked(True)
         self.dimension_action.setChecked(True)
 
         # Koppla händelser till actions
@@ -67,36 +66,28 @@ class BeamWindow(QMainWindow):
         self.save_action.triggered.connect(self.on_save)
         self.save_as_action.triggered.connect(self.on_save_as)
         self.results_view_action.triggered.connect(self.on_results_view)
-        self.add_beam_action.triggered.connect(self.on_add_beam)
-        self.remove_beam_action.triggered.connect(self.on_remove_beam)
-        self.moment_action.triggered.connect(self.on_moment)
-        self.section_force_action.triggered.connect(self.on_section_force)
-        self.displ_action.triggered.connect(self.on_displ)
+        self.add_layer_action.triggered.connect(self.on_add_layer)
+        self.remove_layer_action.triggered.connect(self.on_remove_layer)
+        self.temperature_action.triggered.connect(self.on_temperature)
+        self.heat_flux_action.triggered.connect(self.on_heat_flux)
         self.update_action.triggered.connect(self.on_editing_finished)
         self.dimension_action.triggered.connect(self.on_dimension)
 
         # Koppla händelser till kontroller
 
-        self.segment_combo.currentIndexChanged.connect(self.on_segment_combo)
-        self.segment_length_text.editingFinished.connect(
+        self.layer_combo.currentIndexChanged.connect(self.on_layer_combo)
+        self.thickness_text.editingFinished.connect(
             self.on_editing_finished)
         self.calc_points_spin.valueChanged.connect(self.on_editing_finished)
-        self.segment_load_text.editingFinished.connect(
+        self.conductivity_text.editingFinished.connect(
             self.on_editing_finished)
-        self.e_text.editingFinished.connect(self.on_editing_finished)
-        self.a_text.editingFinished.connect(self.on_editing_finished)
-        self.i_text.editingFinished.connect(self.on_editing_finished)
+        self.h_left_text.editingFinished.connect(self.on_editing_finished)
+        self.h_right_text.editingFinished.connect(self.on_editing_finished)
+        self.T_left_text.editingFinished.connect(self.on_editing_finished)
+        self.T_right_text.editingFinished.connect(self.on_editing_finished)
 
-        self.segment_length_text.returnPressed.connect(
+        self.thickness_text.returnPressed.connect(
             self.on_editing_finished)
-
-        self.left_support_xyr_option.clicked.connect(self.on_editing_finished)
-        self.left_support_xy_option.clicked.connect(self.on_editing_finished)
-        self.left_support_y_option.clicked.connect(self.on_editing_finished)
-
-        self.right_support_xyr_option.clicked.connect(self.on_editing_finished)
-        self.right_support_xy_option.clicked.connect(self.on_editing_finished)
-        self.right_support_y_option.clicked.connect(self.on_editing_finished)
 
         # Justera ikoner för mörkt tema om nödvändigt
 
@@ -129,9 +120,9 @@ class BeamWindow(QMainWindow):
                     inverted_icon = self.create_inverted_icon(original_icon)
                     action.setIcon(inverted_icon)
 
-        # Tala om för balk widgeten om vi skall använda mörkt läge.
+        # Tala om för energy widgeten om vi skall använda mörkt läge.
 
-        self.beam_widget.dark_mode = is_dark_mode
+        self.energy_widget.dark_mode = is_dark_mode
     
     def create_inverted_icon(self, icon: QIcon) -> QIcon:
         """Skapa en vit version av en ikon för mörkt läge"""
@@ -162,103 +153,75 @@ class BeamWindow(QMainWindow):
     def new_model(self) -> None:
         """Skapa en ny modell"""
 
-        self.beam_model.new()
+        self.heat_model.new()
 
         self.update_controls()
         self.update_combo()
-        self.segment_combo.setCurrentIndex(0)
+        self.layer_combo.setCurrentIndex(0)
 
-        self.beam_widget.on_model_updated()
+        self.energy_widget.on_model_updated()
 
     def update_controls(self) -> None:
-        """Uppdatera kontroller med värden från balkmodell"""
+        """Uppdatera kontroller med värden från värmeflödesmodell"""
 
-        if not (0 <= self.current_segment < len(self.beam_model.segments)):
+        if not (0 <= self.current_layer < len(self.heat_model.layers)):
             return
 
-        self.segment_length_text.setText(
-            str(self.beam_model.lengths[self.current_segment])
+        layer = self.heat_model.layers[self.current_layer]
+
+        self.thickness_text.setText(
+            str(layer.thickness)
         )
         self.calc_points_spin.setValue(
-            self.beam_model.segments[self.current_segment])
-        self.segment_load_text.setText(
-            str(self.beam_model.loads[self.current_segment]))
+            layer.num_elements)
+        self.conductivity_text.setText(
+            str(layer.conductivity))
 
-        self.e_text.setText(f"{self.beam_model.properties[self.current_segment][0]:.4e}")
-        self.a_text.setText(f"{self.beam_model.properties[self.current_segment][1]:.4e}")
-        self.i_text.setText(f"{self.beam_model.properties[self.current_segment][2]:.4e}")
-
-        if self.beam_model.supports[self.current_segment] == BeamModel.FIXED_XY:
-            self.left_support_xy_option.setChecked(True)
-        elif self.beam_model.supports[self.current_segment] == BeamModel.FIXED_Y:
-            self.left_support_y_option.setChecked(True)
-        elif self.beam_model.supports[self.current_segment] == BeamModel.FIXED_XYR:
-            self.left_support_xyr_option.setChecked(True)
-
-        if self.beam_model.supports[self.current_segment + 1] == BeamModel.FIXED_XY:
-            self.right_support_xy_option.setChecked(True)
-        elif self.beam_model.supports[self.current_segment + 1] == BeamModel.FIXED_Y:
-            self.right_support_y_option.setChecked(True)
-        elif self.beam_model.supports[self.current_segment + 1] == BeamModel.FIXED_XYR:
-            self.right_support_xyr_option.setChecked(True)
+        # Uppdatera globala randvillkor (visas alltid)
+        self.h_left_text.setText(f"{self.heat_model.h_left:.4f}")
+        self.h_right_text.setText(f"{self.heat_model.h_right:.4f}")
+        self.T_left_text.setText(f"{self.heat_model.T_left:.4f}")
+        self.T_right_text.setText(f"{self.heat_model.T_right:.4f}")
 
     def update_combo(self) -> None:
-        """Uppdatera listbox med balksegment"""
+        """Uppdatera listbox med materiallager"""
 
-        self.segment_combo.clear()
+        self.layer_combo.clear()
 
-        for i, item in enumerate(self.beam_model.segments):
-            beam_descr = f"{i+1}: {self.beam_model.lengths[i]} m"
-            self.segment_combo.addItem(beam_descr)
+        for i, layer in enumerate(self.heat_model.layers):
+            layer_descr = f"{i+1}: {layer.thickness} m"
+            self.layer_combo.addItem(layer_descr)
 
-        self.segment_combo.setCurrentIndex(self.current_segment)
+        self.layer_combo.setCurrentIndex(self.current_layer)
 
     def on_editing_finished(self, text: str = "") -> None:
         """Hantera ändringar i kontroller"""
 
-        if self.current_segment == -1:
+        if self.current_layer == -1 or self.current_layer >= len(self.heat_model.layers):
             return
         
-        l = self.beam_model.lengths[self.current_segment]
-        q = self.beam_model.loads[self.current_segment]
-        E = self.beam_model.properties[self.current_segment][0]
-        A = self.beam_model.properties[self.current_segment][1]
-        I = self.beam_model.properties[self.current_segment][2]
+        layer = self.heat_model.layers[self.current_layer]
+        
+        thickness = layer.thickness
+        conductivity = layer.conductivity
+        num_elements = layer.num_elements
 
-        l = try_float(self.segment_length_text.text(), l)
-        q = try_float(self.segment_load_text.text(), q)
-        E = try_float(self.e_text.text(), E)
-        A = try_float(self.a_text.text(), A)
-        I = try_float(self.i_text.text(), I)
+        thickness = try_float(self.thickness_text.text(), thickness)
+        conductivity = try_float(self.conductivity_text.text(), conductivity)
+        num_elements = self.calc_points_spin.value()
 
-        self.beam_model.lengths[self.current_segment] = l
-        self.beam_model.loads[self.current_segment] = q
-        self.beam_model.properties[self.current_segment][0] = E
-        self.beam_model.properties[self.current_segment][1] = A
-        self.beam_model.properties[self.current_segment][2] = I
-        self.beam_model.segments[self.current_segment] = (
-            self.calc_points_spin.value()
-        )
+        layer.thickness = thickness
+        layer.conductivity = conductivity
+        layer.num_elements = num_elements
 
-        if self.left_support_xy_option.isChecked():
-            self.beam_model.supports[self.current_segment] = BeamModel.FIXED_XY
-        elif self.left_support_y_option.isChecked():
-            self.beam_model.supports[self.current_segment] = BeamModel.FIXED_Y
-        elif self.left_support_xyr_option.isChecked():
-            self.beam_model.supports[self.current_segment] = BeamModel.FIXED_XYR
+        # Uppdatera globala randvillkor
+        self.heat_model.h_left = try_float(self.h_left_text.text(), self.heat_model.h_left)
+        self.heat_model.h_right = try_float(self.h_right_text.text(), self.heat_model.h_right)
+        self.heat_model.T_left = try_float(self.T_left_text.text(), self.heat_model.T_left)
+        self.heat_model.T_right = try_float(self.T_right_text.text(), self.heat_model.T_right)
 
-        if self.right_support_xy_option.isChecked():
-            self.beam_model.supports[self.current_segment +
-                                        1] = BeamModel.FIXED_XY
-        elif self.right_support_y_option.isChecked():
-            self.beam_model.supports[self.current_segment +
-                                        1] = BeamModel.FIXED_Y
-        elif self.right_support_xyr_option.isChecked():
-            self.beam_model.supports[self.current_segment +
-                                        1] = BeamModel.FIXED_XYR
-
-        self.beam_model.solve()
-        self.beam_widget.on_model_updated()
+        self.heat_model.solve()
+        self.energy_widget.on_model_updated()
 
         self.update_controls()
         self.update_combo()
@@ -266,10 +229,10 @@ class BeamWindow(QMainWindow):
         if self.results_window is not None:
             self.results_window.update()
 
-    def on_segment_combo(self, idx: int) -> None:
+    def on_layer_combo(self, idx: int) -> None:
         """Händelsemetod för att hantera val i listbox"""
 
-        self.current_segment = idx
+        self.current_layer = idx
         self.update_controls()
 
     def on_new(self) -> None:
@@ -291,8 +254,8 @@ class BeamWindow(QMainWindow):
             )
 
             if self.filename != "":
-                self.beam_model.open_from_json(self.filename)
-                self.beam_widget.on_model_updated()
+                self.heat_model.open_from_json(self.filename)
+                self.energy_widget.on_model_updated()
                 self.update_controls()
         except Exception as e:
             QMessageBox.critical(self, "Fel", f"Kunde inte öppna filen:\n{e}")
@@ -307,7 +270,7 @@ class BeamWindow(QMainWindow):
                 )
 
             if self.filename != "":
-                self.beam_model.save_as_json(self.filename)
+                self.heat_model.save_as_json(self.filename)
 
         except Exception as e:
             QMessageBox.critical(self, "Fel", f"Kunde inte spara filen:\n{e}")
@@ -322,45 +285,40 @@ class BeamWindow(QMainWindow):
 
             if temp_filename != "":
                 self.filename = temp_filename
-                self.beam_model.save_as_json(self.filename)
+                self.heat_model.save_as_json(self.filename)
 
         except Exception as e:
             QMessageBox.critical(self, "Fel", f"Kunde inte spara filen:\n{e}")
 
-    def on_moment(self) -> None:
-        """Händelsemetod för att visa momentdiagram."""
+    def on_temperature(self) -> None:
+        """Händelsemetod för att visa temperaturfördelning."""
 
-        self.beam_widget.show_moments = self.moment_action.isChecked()
+        self.energy_widget.show_temperature = self.temperature_action.isChecked()
 
-    def on_section_force(self) -> None:
-        """Händelsemetod för att visa snittkraftsdiagram."""
+    def on_heat_flux(self) -> None:
+        """Händelsemetod för att visa värmeflöde."""
 
-        self.beam_widget.show_section_force = self.section_force_action.isChecked()
-
-    def on_displ(self) -> None:
-        """Händelsemetod för att visa förskjutningsdiagram."""
-
-        self.beam_widget.show_displacement = self.displ_action.isChecked()
+        self.energy_widget.show_heat_flux = self.heat_flux_action.isChecked()
 
     def on_dimension(self) -> None:
         """Händelsemetod för att visa dimensioner."""
 
-        self.beam_widget.show_dimensions = self.dimension_action.isChecked()
+        self.energy_widget.show_dimensions = self.dimension_action.isChecked()
 
-    def on_add_beam(self) -> None:
-        """Händelsemetod för att lägga till en balk."""
+    def on_add_layer(self) -> None:
+        """Händelsemetod för att lägga till ett lager."""
 
-        self.beam_model.add_segment()
-        self.beam_widget.on_model_updated()
+        self.heat_model.add_layer(0.1, 1.0)
+        self.energy_widget.on_model_updated()
 
         self.update_combo()
         self.update_controls()
 
-    def on_remove_beam(self):
-        """Händelsemetod för att ta bort en balk."""
+    def on_remove_layer(self):
+        """Händelsemetod för att ta bort ett lager."""
 
-        self.beam_model.remove_segment()
-        self.beam_widget.on_model_updated()
+        self.heat_model.remove_layer()
+        self.energy_widget.on_model_updated()
 
         self.update_combo()
         self.update_controls()
@@ -372,7 +330,7 @@ class BeamWindow(QMainWindow):
             if self.results_window is not None:
                 self.results_window.close()
 
-            self.results_window = BeamResultsWindow(self.beam_model)
+            self.results_window = EnergyResultsWindow(self.heat_model)
             self.results_window.on_close = self.on_results_view_close
             self.results_window.show()
         else:
@@ -389,7 +347,7 @@ if __name__ == "__main__":
 
     application = QApplication(sys.argv)
 
-    window = BeamWindow()
+    window = EnergyWindow()
     window.show()
 
     # close_console()  # Commented out to see debug print statements

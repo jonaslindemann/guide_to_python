@@ -9,14 +9,11 @@ ladda modellen från JSON-filer.
 
 import logging
 import json
-from sys import version
-from unittest import result
 
 import numpy as np
+import matplotlib.pyplot as plt
 import tabulate
-
 import calfem.core as cfc
-#from calfem.matrix_compat import MatrixCompat
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -315,6 +312,21 @@ class HeatFlow1DModel:
         """Returnerar värmeflöde genom element"""
         return self.__heat_flux
     
+    def plot_temperature_distribution(self) -> None:
+        """Plotta temperaturfördelning längs balken"""
+
+        if self.__temperatures is None or self.__coords is None:
+            logger.error("Ingen lösning att plotta.")
+            return
+
+        plt.figure(figsize=(8, 5))
+        plt.plot(self.__coords, self.__temperatures, marker='o')
+        plt.title("Temperaturfördelning längs 1D värmeflödesmodell")
+        plt.xlabel("Position (m)")
+        plt.ylabel("Temperatur (°C)")
+        plt.grid(True)
+        plt.show()
+    
     def __str__(self) -> str:
         """Returnerar strängrepresentation av balkmodellen"""
 
@@ -330,10 +342,10 @@ class HeatFlow1DModel:
 
         results += "\nTemperatures (°C):\n"
         if self.__temperatures is not None:
-            temp_data = [[i+1, temp] for i, temp in enumerate(self.__temperatures)]
+            temp_data = [[self.coords[i], temp] for i, temp in enumerate(self.__temperatures)]
         
         print(temp_data)
-        results += tabulate.tabulate(temp_data, headers=["Node", "Temperature (°C)"], tablefmt="grid")
+        results += tabulate.tabulate(temp_data, headers=["X (m)", "Temperature (°C)"], tablefmt="grid")
         
         return results
 
@@ -354,3 +366,5 @@ if __name__ == "__main__":
     model.solve()
 
     print(model)
+
+    model.plot_temperature_distribution()
