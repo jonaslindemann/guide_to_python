@@ -8,7 +8,7 @@ Klassen är avsedd att användas som en bas för att skapa anpassade uppritnings
 """
 
 from qtpy.QtWidgets import QWidget
-from qtpy.QtGui import QPainter, QTransform, QPen, QBrush, QFont
+from qtpy.QtGui import QPainter, QTransform, QPen, QBrush, QFont, QPixmap, QImage
 from qtpy.QtCore import Qt, QPointF, QRectF
 
 
@@ -27,9 +27,13 @@ class DrawWidget(QWidget):
         self.__text_color = Qt.black
         self.__background_color = Qt.white
         self.__painter = None
+        self.__fill_pattern = Qt.SolidPattern
 
         self.stroke_pen = QPen(self.__stroke_color, self.__stroke_width)
         self.fill_brush = QBrush(self.__fill_color)
+        self.fill_pattern = Qt.SolidPattern
+        self.__hatch_scale = 1.0
+
         self.font = QFont()
         self.text_pen = QPen(self.__text_color)
 
@@ -123,6 +127,18 @@ class DrawWidget(QWidget):
     def world_to_window(self, x: float, y: float) -> QPointF:
         """Konvertera världskoordinater till fönsterkoordinater"""
         return self.transform.map(QPointF(x, y))
+    
+    def world_distance_to_window(self, distance: float) -> float:
+        """Konvertera ett avstånd i världskoordinater till fönsterkoordinater"""
+        return distance * abs(self.scale)
+    
+    wd2s = world_distance_to_window
+    
+    def screen_distance_to_world(self, distance: float) -> float:
+        """Konvertera ett avstånd i fönsterkoordinater till världskoordinater"""
+        return distance / abs(self.scale)
+    
+    s2wd = screen_distance_to_world
 
     def polygon(self, points: list[tuple[float, float]]) -> None:
         """Rita en polygon med punkter"""
@@ -180,7 +196,55 @@ class DrawWidget(QWidget):
         """Rita en rektangel"""
         p1 = self.transform.map(QPointF(x, y))
         p2 = self.transform.map(QPointF(x + w, y + h))
-        self.painter.drawRect(QRectF(p1, p2))
+        rect = QRectF(p1, p2)
+        
+        # Om vi har ett hatch-mönster, rita först bakgrundsfärgen och sedan hatchen
+        if self.fill_pattern != Qt.SolidPattern:
+            # Rita bakgrund med fill_color först
+            self.painter.fillRect(rect, QBrush(self.__fill_color, Qt.SolidPattern))
+            
+            # Rita hatch-mönster med stroke_color (scaled if needed)
+            hatch_brush = self.create_scaled_pattern_brush(self.fill_pattern, self.__stroke_color, self.__hatch_scale)
+            self.painter.fillRect(rect, hatch_brush)
+            
+            # Rita kanten
+            self.painter.setPen(self.stroke_pen)
+            self.painter.setBrush(Qt.NoBrush)
+            self.painter.drawRect(rect)
+        else:
+            # Solid fill - använd standard drawRect
+            self.painter.drawRect(rect)
+
+    def optional_rect(self, x: float, y: float, w: float, h: float, left: bool, right: bool, top:bool, bottom:bool) -> None:
+        """Rita en rektangel med valbara sidor"""
+        
+        # Rita fylld rektangel först
+        p1 = self.transform.map(QPointF(x, y))
+        p2 = self.transform.map(QPointF(x + w, y + h))
+        rect = QRectF(p1, p2)
+
+        # Om vi har ett hatch-mönster, rita först bakgrundsfärgen och sedan hatchen
+        if self.fill_pattern != Qt.SolidPattern:
+            # Rita bakgrund med fill_color (solid)
+            background_brush = QBrush(self.__fill_color, Qt.SolidPattern)
+            self.painter.fillRect(rect, background_brush)
+            
+            # Rita hatch-mönster med stroke_color (scaled if needed)
+            hatch_brush = self.create_scaled_pattern_brush(self.fill_pattern, self.__stroke_color, self.__hatch_scale)
+            self.painter.fillRect(rect, hatch_brush)
+        else:
+            # Solid fill - bara rita en gång
+            self.painter.fillRect(rect, self.fill_brush)
+
+        # Rita kanter
+        if left:
+            self.line(x, y, x, y + h)
+        if right:
+            self.line(x + w, y, x + w, y + h)
+        if top:
+            self.line(x, y, x + w, y)
+        if bottom:
+            self.line(x, y + h, x + w, y + h)
 
     def circle(self, x: float, y: float, r: float) -> None:
         """Rita en cirkel"""
@@ -238,6 +302,31 @@ class DrawWidget(QWidget):
         self.painter.drawText(p, text)
         self.painter.setPen(self.stroke_pen)
 
+    def save_state(self) -> dict:
+        """Spara aktuell ritningsstatus"""
+        self.state = {
+            "stroke_color": self.__stroke_color,
+            "fill_color": self.__fill_color,
+            "stroke_width": self.__stroke_width,
+            "text_color": self.__text_color,
+            "hatch_scale": self.__hatch_scale,
+            "fill_pattern": self.__fill_pattern
+        }
+        return self.state
+    
+    def restore_state(self, state: dict=None) -> None:
+        """Återställ ritningsstatus från sparad status"""
+
+        if state is None:
+            state = self.state
+            
+        self.stroke_color = state.get("stroke_color", Qt.black)
+        self.fill_color = state.get("fill_color", Qt.white)
+        self.stroke_width = state.get("stroke_width", 1.0)
+        self.text_color = state.get("text_color", Qt.black)
+        self.hatch_scale = state.get("hatch_scale", 1.0)
+        self.fill_pattern = state.get("fill_pattern", Qt.SolidPattern)
+
     @property
     def painter(self) -> QPainter:
         """Returnera den aktuella QPainter-objektet för kontrollen"""
@@ -272,6 +361,60 @@ class DrawWidget(QWidget):
     def fill_color(self, color):
         self.__fill_color = color
         self.fill_brush.setColor(color)
+
+    @property
+    def fill_pattern(self):
+        return self.__fill_pattern
+    
+    @fill_pattern.setter
+    def fill_pattern(self, pattern):
+        self.__fill_pattern = pattern
+        self.fill_brush.setStyle(pattern)
+    
+    def create_scaled_pattern_brush(self, pattern, stroke_color, scale=1.0):
+        """Create a brush with a scaled hatch pattern using a texture pixmap"""
+        if pattern == Qt.SolidPattern or scale == 1.0:
+            # Use built-in pattern if not scaled
+            return QBrush(stroke_color, pattern)
+        
+        # Base size for pattern tile
+        base_size = 8
+        tile_size = int(base_size * scale)
+        
+        # Create a pixmap for the pattern tile
+        pixmap = QPixmap(tile_size, tile_size)
+        pixmap.fill(Qt.transparent)
+        
+        painter = QPainter(pixmap)
+        painter.setPen(QPen(stroke_color, 1))
+        
+        # Draw the pattern based on type
+        if pattern == Qt.BDiagPattern:
+            painter.drawLine(0, tile_size - 1, tile_size - 1, 0)
+        elif pattern == Qt.FDiagPattern:
+            painter.drawLine(0, 0, tile_size - 1, tile_size - 1)
+        elif pattern == Qt.DiagCrossPattern:
+            painter.drawLine(0, tile_size - 1, tile_size - 1, 0)
+            painter.drawLine(0, 0, tile_size - 1, tile_size - 1)
+        elif pattern == Qt.HorPattern:
+            painter.drawLine(0, tile_size // 2, tile_size - 1, tile_size // 2)
+        elif pattern == Qt.VerPattern:
+            painter.drawLine(tile_size // 2, 0, tile_size // 2, tile_size - 1)
+        elif pattern == Qt.CrossPattern:
+            painter.drawLine(0, tile_size // 2, tile_size - 1, tile_size // 2)
+            painter.drawLine(tile_size // 2, 0, tile_size // 2, tile_size - 1)
+        
+        painter.end()
+        
+        return QBrush(pixmap)
+    
+    @property
+    def hatch_scale(self):
+        return self.__hatch_scale
+    
+    @hatch_scale.setter
+    def hatch_scale(self, scale):
+        self.__hatch_scale = max(0.1, scale)
 
     @property
     def stroke_width(self):

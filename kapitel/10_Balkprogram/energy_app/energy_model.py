@@ -21,12 +21,21 @@ logger = logging.getLogger(__name__)
 class MaterialLayer:
     """Klass för att representera ett materiallager i 1D värmeflödesmodell"""
 
+    BDiagPattern = 1
+    FDiagPattern = 2
+    DiagCrossPattern = 3
+    HorPattern = 4
+    VertPattern = 5
+    CrossPattern = 6
+    SolidPattern = 7
+
     def __init__(self, thickness: float, thermal_conductivity: float, num_elements: int = 10):
         """Klasskonstruktor"""
 
         self.__thickness = thickness
         self.__conductivity = thermal_conductivity
         self.__num_elements = num_elements
+        self.__pattern = MaterialLayer.FDiagPattern
 
     @property
     def thickness(self) -> float:
@@ -63,6 +72,18 @@ class MaterialLayer:
         """Sätter antal element i lagret"""
 
         self.__num_elements = max(1, value)
+
+    @property
+    def pattern(self) -> int:
+        """Returnerar fyllnadsmönster för lagret"""
+
+        return self.__pattern
+    
+    @pattern.setter
+    def pattern(self, value: int) -> None:
+        """Sätter fyllnadsmönster för lagret"""
+
+        self.__pattern = value
 
 class HeatFlow1DModel:
     """Balk klass för att beräkna en kontinuerlig balk"""
@@ -105,7 +126,7 @@ class HeatFlow1DModel:
     def remove_layer(self) -> None:
         """Ta bort ett segment"""
 
-        if len(self.lengths) > 1:
+        if len(self.layers) > 1:
 
             self.__layers.pop()
 

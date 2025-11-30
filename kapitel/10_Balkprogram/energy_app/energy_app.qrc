@@ -11,6 +11,8 @@
         <file>images/Save.png</file>
         <file>images/V.png</file>
         <file>images/Y.png</file>
+        <file>images/T.png</file>
+        <file>images/q.png</file>
         <file>images/Dimensions.png</file>
     </qresource>
 </RCC>

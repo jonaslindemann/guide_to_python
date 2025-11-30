@@ -7,7 +7,7 @@ Innehåller huvudklassen EnergyWindow som är huvudfönstret för programmet sam
 @author: Jonas Lindemann
 """
 
-import os
+import os 
 import sys
 
 os.environ["QT_API"] = "pyside6"
@@ -19,8 +19,8 @@ from energy_model import HeatFlow1DModel, MaterialLayer
 
 from qtpy import uic
 from qtpy.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox
-from qtpy.QtGui import QPalette, QIcon, QPixmap, QPainter
-from qtpy.QtCore import Qt
+from qtpy.QtGui import QPalette, QIcon, QPixmap, QPainter, QBrush, QPen, QColor
+from qtpy.QtCore import Qt, QRect
 
 import energy_res
 
@@ -50,7 +50,10 @@ class EnergyWindow(QMainWindow):
         self.energy_widget = EnergyWidget(self.heat_model)
         self.main_layout.addWidget(self.energy_widget)
 
-        self.new_model()        
+        self.new_model()
+
+        # Populate pattern combo with available fill patterns
+        self.populate_pattern_combo()
 
         # Se till att check actions har rätt default värden
 
@@ -76,6 +79,7 @@ class EnergyWindow(QMainWindow):
         # Koppla händelser till kontroller
 
         self.layer_combo.currentIndexChanged.connect(self.on_layer_combo)
+        self.pattern_combo.currentIndexChanged.connect(self.on_pattern_combo)
         self.thickness_text.editingFinished.connect(
             self.on_editing_finished)
         self.calc_points_spin.valueChanged.connect(self.on_editing_finished)
@@ -176,6 +180,9 @@ class EnergyWindow(QMainWindow):
             layer.num_elements)
         self.conductivity_text.setText(
             str(layer.conductivity))
+        
+        # Update pattern combo to match current layer
+        self.pattern_combo.setCurrentIndex(layer.pattern - 1)
 
         # Uppdatera globala randvillkor (visas alltid)
         self.h_left_text.setText(f"{self.heat_model.h_left:.4f}")
@@ -229,11 +236,89 @@ class EnergyWindow(QMainWindow):
         if self.results_window is not None:
             self.results_window.update()
 
+    def create_pattern_icon(self, pattern: int, size: int = 48) -> QIcon:
+        """Create an icon showing the pattern visually"""
+        
+        pixmap = QPixmap(size, size)
+        painter = QPainter(pixmap)
+        
+        # Determine colors based on current theme
+        palette = self.palette()
+        is_dark = palette.color(QPalette.ColorRole.Window).lightness() < palette.color(QPalette.ColorRole.WindowText).lightness()
+        
+        if is_dark:
+            bg_color = QColor(50, 50, 50)
+            pattern_color = QColor(150, 150, 150)
+            border_color = QColor(100, 100, 100)
+        else:
+            bg_color = QColor(220, 220, 220)
+            pattern_color = QColor(80, 80, 80)
+            border_color = QColor(160, 160, 160)
+        
+        # Map MaterialLayer patterns to Qt patterns
+        qt_pattern_map = {
+            MaterialLayer.BDiagPattern: Qt.BrushStyle.BDiagPattern,
+            MaterialLayer.FDiagPattern: Qt.BrushStyle.FDiagPattern,
+            MaterialLayer.DiagCrossPattern: Qt.BrushStyle.DiagCrossPattern,
+            MaterialLayer.HorPattern: Qt.BrushStyle.HorPattern,
+            MaterialLayer.VertPattern: Qt.BrushStyle.VerPattern,
+            MaterialLayer.CrossPattern: Qt.BrushStyle.CrossPattern,
+            MaterialLayer.SolidPattern: Qt.BrushStyle.SolidPattern
+        }
+        
+        qt_pattern = qt_pattern_map.get(pattern, Qt.BrushStyle.SolidPattern)
+        
+        # Draw background
+        painter.fillRect(0, 0, size, size, QBrush(bg_color, Qt.BrushStyle.SolidPattern))
+        
+        # Draw pattern
+        if qt_pattern != Qt.BrushStyle.SolidPattern:
+            painter.fillRect(0, 0, size, size, QBrush(pattern_color, qt_pattern))
+        
+        # Draw border
+        painter.setPen(QPen(border_color, 1))
+        painter.drawRect(0, 0, size - 1, size - 1)
+        
+        painter.end()
+        return QIcon(pixmap)
+
+    def populate_pattern_combo(self) -> None:
+        """Populate pattern combo with available fill patterns"""
+        
+        self.pattern_combo.clear()
+        
+        patterns = [
+            (MaterialLayer.BDiagPattern, "B. Diag"),
+            (MaterialLayer.FDiagPattern, "F. Diag"),
+            (MaterialLayer.DiagCrossPattern, "D. Kors"),
+            (MaterialLayer.HorPattern, "H. Linje"),
+            (MaterialLayer.VertPattern, "V. Linje"),
+            (MaterialLayer.CrossPattern, "HV. Linjer"),
+            (MaterialLayer.SolidPattern, "Fyll")
+        ]
+        
+        for pattern_id, pattern_name in patterns:
+            icon = self.create_pattern_icon(pattern_id)
+            self.pattern_combo.addItem(icon, pattern_name, pattern_id)
+
     def on_layer_combo(self, idx: int) -> None:
         """Händelsemetod för att hantera val i listbox"""
 
         self.current_layer = idx
         self.update_controls()
+    
+    def on_pattern_combo(self, idx: int) -> None:
+        """Händelsemetod för att hantera val av mönster"""
+        
+        if self.current_layer == -1 or self.current_layer >= len(self.heat_model.layers):
+            return
+        
+        layer = self.heat_model.layers[self.current_layer]
+        pattern = self.pattern_combo.itemData(idx)
+        
+        if pattern is not None:
+            layer.pattern = pattern
+            self.energy_widget.update()
 
     def on_new(self) -> None:
         """Händelsemetod för att skapa en ny modell"""

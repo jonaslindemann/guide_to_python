@@ -21,10 +21,17 @@ class EnergyWidget(DrawWidget):
 
         self.heat_model = heat_model
 
+        # Kom ihåg max thickness för skalning
+
+
+        self.hatch_scale = 3.0
+
         self.rel_margin = 0.1
-        self.rel_max_height = 0.15
-        self.rel_dim_dist = 0.02
+        self.rel_max_height = 0.8
+        self.initial_height = self.heat_model.total_thickness * self.rel_max_height 
+        self.rel_dim_dist = 0.05
         self.rel_layer_height = 0.05
+
 
         self.__show_temperature = True
         self.__show_heat_flux = True
@@ -35,6 +42,10 @@ class EnergyWidget(DrawWidget):
         self.update_scale_factors()
 
     def update_scale_factors(self) -> None:
+
+        self.rel_max_height = 0.8
+
+
         if self.heat_model.temperatures is not None:
             self.T_max = self.heat_model.temperatures.max()
             self.T_min = self.heat_model.temperatures.min()
@@ -49,9 +60,9 @@ class EnergyWidget(DrawWidget):
 
         self.set_world_bounds(
             -self.margin,
-            -self.max_height * 1.5,
-            self.total_thickness + self.margin,
-            self.max_height * 1.5,
+            -(self.max_height*0.5)/2.0-self.margin-self.dim_dist*1.5,
+            self.total_thickness + self.margin*2,
+            self.max_height*0.5 + self.margin*2 + self.dim_dist*3,
         )
 
     def on_model_updated(self) -> None:
@@ -62,35 +73,65 @@ class EnergyWidget(DrawWidget):
         """Rita materiallager"""
 
         if self.dark_mode:
-            self.stroke_color = QColor(200, 200, 200)
-            self.fill_color = QColor(80, 80, 80)
+            self.stroke_color = QColor(150, 150, 150)  # Medium gray for hatch lines
+            self.fill_color = QColor(50, 50, 50)  # Dark gray background
         else:
             self.stroke_color = Qt.black
             self.fill_color = QColor(220, 220, 220)
 
         self.stroke_width = 2.0
 
+
         x_pos = 0.0
         for i, layer in enumerate(self.heat_model.layers):
             # Rita lager som rektangel
-            self.rect(x_pos, -self.layer_height/2, layer.thickness, self.layer_height)
+
+            self.save_state()
+
+            if layer.pattern == layer.BDiagPattern:
+                self.fill_pattern = Qt.BDiagPattern
+            elif layer.pattern == layer.FDiagPattern:
+                self.fill_pattern = Qt.FDiagPattern
+            elif layer.pattern == layer.DiagCrossPattern:
+                self.fill_pattern = Qt.DiagCrossPattern
+            elif layer.pattern == layer.HorPattern:
+                self.fill_pattern = Qt.HorPattern
+            elif layer.pattern == layer.VertPattern:
+                self.fill_pattern = Qt.VerPattern
+            elif layer.pattern == layer.CrossPattern:
+                self.fill_pattern = Qt.CrossPattern
+            else:
+                self.fill_pattern = Qt.SolidPattern
+
+
+            self.stroke_color = QColor(180, 180, 180) if self.dark_mode else Qt.black
+            self.fill_color = QColor(80, 80, 80) if self.dark_mode else QColor(220, 220, 220)
+
+            self.optional_rect(x_pos, -(self.max_height*0.5)/2.0, layer.thickness, self.max_height*0.5, True, True, False, False)
+
+            self.restore_state()
+
             
             # Rita lagernummer
             if self.dark_mode:
                 self.text_color = Qt.white
             else:
                 self.text_color = Qt.black
+
+            self.circle(x_pos + layer.thickness / 2, -self.s2wd(self.height()*0.01), self.s2wd(self.height()*0.02))
             
             self.text(
                 x_pos + layer.thickness / 2,
                 0,
                 f"{i+1}",
-                font_size=self.dim_dist * 0.8,
+                font_size=self.s2wd(self.height()*0.03),
                 hor_align="center",
                 vert_align="middle"
             )
             
             x_pos += layer.thickness
+
+        #self.restore_state()
 
     def draw_dimensions(self) -> None:
         """Rita dimensioner för lager"""
@@ -106,9 +147,9 @@ class EnergyWidget(DrawWidget):
 
         self.stroke_width = 1.0
 
-        y_start = -self.layer_height/2 - self.dim_dist * 0.5
-        y_end = -self.layer_height/2 - self.dim_dist * 1.5
-        y_dim_line = y_end
+        y_start = -self.max_height*0.5/2 - self.s2wd(self.height()*0.02)
+        y_end = -self.max_height*0.5/2 - self.s2wd(self.height()*0.1)
+        y_dim_line = y_end + self.s2wd(self.height()*0.01)
 
         x_pos = 0.0
         for i, layer in enumerate(self.heat_model.layers):
@@ -118,15 +159,15 @@ class EnergyWidget(DrawWidget):
                 y_dim_line,
                 x_pos + layer.thickness,
                 y_dim_line,
-                arrow_size=self.dim_dist * 0.3,
+                arrow_size=self.s2wd(self.height()*0.02),
             )
             self.text(
                 x_pos + layer.thickness / 2,
-                y_dim_line - self.dim_dist * 0.3,
+                y_dim_line + self.s2wd(self.height()*0.02),
                 f"{layer.thickness:.3f} m",
-                font_size=self.dim_dist * 0.8,
+                font_size=self.s2wd(self.height()*0.02),
                 hor_align="center",
-                vert_align="top",
+                vert_align="bottom",
             )
             
             x_pos += layer.thickness
@@ -195,8 +236,8 @@ class EnergyWidget(DrawWidget):
 
         self.draw_layers()
 
-        #if self.show_dimensions:
-        #    self.draw_dimensions()
+        if self.show_dimensions:
+            self.draw_dimensions()
 
 
 
@@ -238,7 +279,7 @@ class EnergyWidget(DrawWidget):
     @rel_dim_dist.setter
     def rel_dim_dist(self, dist):
         self.__rel_dim_dist = dist
-        self.dim_dist = dist * self.total_thickness
+        self.dim_dist = dist * self.max_height
 
     @property
     def show_temperature(self):
