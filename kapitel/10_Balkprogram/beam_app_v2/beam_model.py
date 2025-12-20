@@ -7,12 +7,9 @@ Klassen implementerar en kontinuerlig balk som bestående av flera segment. Varj
 
 import logging
 import json
-from sys import version
 
 import numpy as np
-
 import calfem.core as cfc
-#from calfem.matrix_compat import MatrixCompat
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
