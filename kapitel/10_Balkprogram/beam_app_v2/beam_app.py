@@ -12,7 +12,7 @@ import sys
 
 os.environ["QT_API"] = "pyside6"
 
-from beam_utils import try_float, close_console
+from beam_utils import try_float, close_console, load_ui
 from beam_widget import BeamWidget
 from beam_results import BeamResultsWindow
 from beam_model import BeamModel
@@ -33,7 +33,7 @@ class BeamWindow(QMainWindow):
         super().__init__()
 
         # Läs in gränssnitt från fil
-        uic.loadUi("beam_app.ui", self)
+        load_ui("beam_app.ui", self)
 
         # Klassattribut
 

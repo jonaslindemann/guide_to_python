@@ -63,30 +63,37 @@ def _sanitize_ui_xml(xml_text: str) -> str:
         fixed = pattern.sub(repl, fixed)
     return fixed
 
-
 def load_ui(ui_filename: str, baseinstance=None):
-    """Load a .ui file after sanitizing known problematic enum attributes.
 
-    Usage: load_ui("beam_app.ui", self)
-    """
-    full_path = resource_path(ui_filename)
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    full_path = os.path.join(base_path, ui_filename)   
 
-    # Read and sanitize
-    with open(full_path, "r", encoding="utf-8") as f:
-        xml_text = f.read()
-    xml_text = _sanitize_ui_xml(xml_text)
+    return uic.loadUi(full_path, baseinstance)
 
-    # Write to a temporary .ui and load via uic
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".ui", mode="w", encoding="utf-8")
-    try:
-        tmp.write(xml_text)
-        tmp.flush()
-        tmp.close()
-        return uic.loadUi(tmp.name, baseinstance)
-    finally:
-        try:
-            os.unlink(tmp.name)
-        except Exception:
-            # Best-effort cleanup on Windows
-            pass
+
+# def load_ui(ui_filename: str, baseinstance=None):
+#     """Load a .ui file after sanitizing known problematic enum attributes.
+
+#     Usage: load_ui("beam_app.ui", self)
+#     """
+#     full_path = resource_path(ui_filename)
+
+#     # Read and sanitize
+#     with open(full_path, "r", encoding="utf-8") as f:
+#         xml_text = f.read()
+#     xml_text = _sanitize_ui_xml(xml_text)
+
+#     # Write to a temporary .ui and load via uic
+#     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".ui", mode="w", encoding="utf-8")
+#     try:
+#         tmp.write(xml_text)
+#         tmp.flush()
+#         tmp.close()
+#         return uic.loadUi(tmp.name, baseinstance)
+#     finally:
+#         try:
+#             os.unlink(tmp.name)
+#         except Exception:
+#             # Best-effort cleanup on Windows
+#             pass
 
